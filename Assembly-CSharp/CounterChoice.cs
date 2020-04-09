@@ -6,6 +6,8 @@ public class CounterChoice : ICheapState
 
 	private TurnTimer timer;
 
+	private bool CounterOnce;
+
 	public CounterChoice(UnitController ctrlr)
 	{
 		unitCtrlr = ctrlr;
@@ -21,6 +23,7 @@ public class CounterChoice : ICheapState
 		unitCtrlr.defenderCtrlr = unitCtrlr.attackerCtrlr;
 		unitCtrlr.SetCurrentAction(SkillId.BASE_COUNTER_ATTACK);
 		timer = null;
+		CounterOnce = false;
 		if (unitCtrlr.IsPlayed() && PandoraSingleton<MissionStartData>.Instance.CurrentMission.missionSave.turnTimer != 0)
 		{
 			timer = new TurnTimer(Constant.GetInt(ConstantId.COUNTER_TIMER), OnTimerDone);
@@ -50,19 +53,21 @@ public class CounterChoice : ICheapState
 		{
 			timer.Update();
 		}
-		if (PandoraSingleton<MissionManager>.Instance.IsCurrentPlayer() && (unitCtrlr.AICtrlr != null || unitCtrlr.unit.CounterForced > 0))
+		if (PandoraSingleton<MissionManager>.Instance.IsCurrentPlayer() && (unitCtrlr.AICtrlr != null || (unitCtrlr.unit.CounterForced > 0 && !CounterOnce)))
 		{
 			PandoraSingleton<NoticeManager>.Instance.SendNotice(Notices.GAME_ACTION_CONFIRM);
 			PandoraSingleton<NoticeManager>.Instance.SendNotice(Notices.CLOSE_COMBAT_COUNTER_ATTACK_VALID);
 			unitCtrlr.SendSkillSingleTarget(SkillId.BASE_COUNTER_ATTACK, unitCtrlr.attackerCtrlr);
+			CounterOnce = true;
 		}
 		else if (unitCtrlr.IsPlayed())
 		{
-			if (PandoraSingleton<PandoraInput>.Instance.GetKeyUp("action") || unitCtrlr.unit.CounterForced > 0)
+			if (PandoraSingleton<PandoraInput>.Instance.GetKeyUp("action") || (unitCtrlr.unit.CounterForced > 0 && !CounterOnce))
 			{
 				PandoraSingleton<NoticeManager>.Instance.SendNotice(Notices.GAME_ACTION_CONFIRM);
 				PandoraSingleton<NoticeManager>.Instance.SendNotice(Notices.CLOSE_COMBAT_COUNTER_ATTACK_VALID);
 				unitCtrlr.SendSkillSingleTarget(SkillId.BASE_COUNTER_ATTACK, unitCtrlr.attackerCtrlr);
+				CounterOnce = true;
 			}
 			else if (PandoraSingleton<PandoraInput>.Instance.GetKeyUp("cancel") || PandoraSingleton<PandoraInput>.Instance.GetKeyUp("esc_cancel"))
 			{

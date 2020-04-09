@@ -18,7 +18,7 @@ public class AIPathImpressiveEnemy : AIPathUnitBase
 	{
 		for (int i = 0; i < enemies.Count; i++)
 		{
-			if (enemies[i].unit.GetUnitTypeId() == UnitTypeId.IMPRESSIVE)
+			if (enemies[i].unit.GetUnitTypeId() == UnitTypeId.IMPRESSIVE || enemies[i].unit.GetUnitTypeId() == UnitTypeId.MONSTER)
 			{
 				targets.Add(enemies[i]);
 			}

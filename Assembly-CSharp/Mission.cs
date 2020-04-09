@@ -9,13 +9,19 @@ public class Mission
 
 	private List<UnitId> roamingUnitIds;
 
-	private static readonly List<UnitData> tempList = new List<UnitData>();
+	private static readonly List<UnitData> tempList;
 
-	private static readonly List<Item> tempRemovedItems = new List<Item>();
+	private static readonly List<Item> tempRemovedItems;
 
 	public Mission(MissionSave missionSave)
 	{
 		this.missionSave = missionSave;
+	}
+
+	static Mission()
+	{
+		tempList = new List<UnitData>();
+		tempRemovedItems = new List<Item>();
 	}
 
 	public override string ToString()
@@ -26,15 +32,15 @@ public class Mission
 	public void RefreshDifficulty(int rating, bool isProc)
 	{
 		int num = 0;
-		int num2 = 0;
 		List<ProcMissionRatingData> list = PandoraSingleton<DataFactory>.Instance.InitData<ProcMissionRatingData>();
 		for (int i = 0; i < list.Count; i++)
 		{
-			num2 = Mathf.Max(num2, list[i].MaxValue);
+			num = Mathf.Max(num, list[i].MaxValue);
 		}
+		int value;
 		if (!isProc)
 		{
-			num = (int)(((float)missionSave.rating / (float)rating - 1f) * 100f);
+			value = (int)(((float)rating / (float)missionSave.rating - 1f) * 100f);
 		}
 		else
 		{
@@ -47,10 +53,10 @@ public class Mission
 				missionSave.ratingId = -rating;
 				return;
 			}
-			num = ((rating >= 100) ? ((int)(((float)missionSave.rating / (float)rating - 1f) * 100f)) : rating);
+			value = ((rating >= 100) ? ((int)(((float)missionSave.rating / (float)rating - 1f) * 100f)) : rating);
 		}
-		num = Mathf.Clamp(num, 0, num2);
-		ProcMissionRatingId id = PandoraSingleton<DataFactory>.Instance.InitDataClosest<ProcMissionRatingData>("max_value", num, lower: false).Id;
+		value = Mathf.Clamp(value, 0, num);
+		ProcMissionRatingId id = PandoraSingleton<DataFactory>.Instance.InitDataClosest<ProcMissionRatingData>("max_value", value, lower: false).Id;
 		id = ((id == ProcMissionRatingId.NONE) ? ProcMissionRatingId.NORMAL : id);
 		missionSave.ratingId = (int)id;
 	}
@@ -408,22 +414,33 @@ public class Mission
 	public static IEnumerator GetProcWarband(int rating, int warRank, int warUnitsCount, bool impressive, WarbandData warData, int heroesCount, int highestUnitRank, Action<WarbandSave> callback)
 	{
 		Tyche tyche = PandoraSingleton<GameManager>.Instance.LocalTyche;
+		if (tyche.Rand(0, 2) == 1 && impressive)
+		{
+			impressive = false;
+			heroesCount += 2;
+			warUnitsCount++;
+		}
+		else if (tyche.Rand(0, 2) == 1 && heroesCount > 3 && !impressive)
+		{
+			impressive = true;
+			heroesCount -= 2;
+			warUnitsCount--;
+		}
 		int ratingPool = 0;
 		PandoraDebug.LogInfo("Generating Procedural Warband using a rating of : " + rating, "MISSION");
 		WarbandSave warSave = new WarbandSave(warData.Id);
-		List<WarbandNameData> warNamesData = PandoraSingleton<DataFactory>.Instance.InitData<WarbandNameData>("fk_warband_id", ((int)warData.Id).ToString());
-		warSave.name = PandoraSingleton<LocalizationManager>.Instance.GetStringById(warNamesData[tyche.Rand(0, warNamesData.Count)].Name);
+		List<WarbandNameData> list = PandoraSingleton<DataFactory>.Instance.InitData<WarbandNameData>("fk_warband_id", ((int)warData.Id).ToString());
+		warSave.name = PandoraSingleton<LocalizationManager>.Instance.GetStringById(list[tyche.Rand(0, list.Count)].Name);
 		warSave.rank = warRank;
-		List<ProcWarbandRankData> procWarRanksData = PandoraSingleton<DataFactory>.Instance.InitData<ProcWarbandRankData>("fk_warband_rank_id", warRank.ToString());
-		ProcWarbandRankData procWarRankData = null;
-		procWarRankData = procWarRanksData[0];
-		if (procWarRankData.Id == ProcWarbandRankId.NONE)
+		List<ProcWarbandRankData> list2 = PandoraSingleton<DataFactory>.Instance.InitData<ProcWarbandRankData>("fk_warband_rank_id", warRank.ToString());
+		ProcWarbandRankData procWarbandRankData = list2[0];
+		if (procWarbandRankData.Id == ProcWarbandRankId.NONE)
 		{
-			procWarRankData = procWarRanksData[1];
+			procWarbandRankData = list2[1];
 		}
-		string procWarbandRank = ((int)procWarRankData.Id).ToString();
-		List<ColorPresetData> presetsData = PandoraSingleton<DataFactory>.Instance.InitData<ColorPresetData>("fk_warband_id", ((int)warData.Id).ToString());
-		ColorPresetData colorPresetData = presetsData[tyche.Rand(0, presetsData.Count)];
+		string procWarbandRank = ((int)procWarbandRankData.Id).ToString();
+		List<ColorPresetData> list3 = PandoraSingleton<DataFactory>.Instance.InitData<ColorPresetData>("fk_warband_id", ((int)warData.Id).ToString());
+		ColorPresetData colorPresetData = list3[tyche.Rand(0, list3.Count)];
 		int offsetPreset = (int)colorPresetData.Id << 8;
 		List<AttributeData> attributeDataList = PandoraSingleton<DataFactory>.Instance.InitData<AttributeData>();
 		List<ProcWarbandRankJoinUnitTypeData> unitTypesData = PandoraSingleton<DataFactory>.Instance.InitData<ProcWarbandRankJoinUnitTypeData>("fk_proc_warband_rank_id", procWarbandRank);
@@ -436,20 +453,15 @@ public class Mission
 		yield return PandoraSingleton<GameManager>.Instance.StartCoroutine(AddProcUnit(unitRating4, tyche, warbandUnitsData, UnitTypeId.LEADER, offsetPreset, injuriesData));
 		ratingPool += unitRating4.rating;
 		List<UnitTypeId> heroesTypes = new List<UnitTypeId>();
-		for (int i3 = 0; i3 < unitTypesData.Count; i3++)
+		for (int j = 0; j < unitTypesData.Count; j++)
 		{
-			switch (unitTypesData[i3].UnitTypeId)
+			UnitTypeId unitTypeId = unitTypesData[j].UnitTypeId;
+			if ((uint)(unitTypeId - 5) <= 2u)
 			{
-			case UnitTypeId.HERO_1:
-			case UnitTypeId.HERO_2:
-			case UnitTypeId.HERO_3:
-			{
-				for (int i = 0; i < unitTypesData[i3].MaxCount; i++)
+				for (int k = 0; k < unitTypesData[j].MaxCount; k++)
 				{
-					heroesTypes.Add(unitTypesData[i3].UnitTypeId);
+					heroesTypes.Add(unitTypesData[j].UnitTypeId);
 				}
-				break;
-			}
 			}
 		}
 		if (impressive)
@@ -459,7 +471,7 @@ public class Mission
 			yield return PandoraSingleton<GameManager>.Instance.StartCoroutine(AddProcUnit(unitRating4, tyche, warbandUnitsData, UnitTypeId.IMPRESSIVE, offsetPreset, injuriesData));
 			ratingPool += unitRating4.rating;
 		}
-		for (int i2 = 0; i2 < heroesCount; i2++)
+		for (int i = 0; i < heroesCount; i++)
 		{
 			unitRating4 = new UnitRating();
 			unitRatings.Add(unitRating4);
@@ -473,83 +485,84 @@ public class Mission
 			yield return PandoraSingleton<GameManager>.Instance.StartCoroutine(AddProcUnit(unitRating4, tyche, warbandUnitsData, UnitTypeId.HENCHMEN, offsetPreset, injuriesData));
 			ratingPool += unitRating4.rating;
 		}
-		for (int k2 = 0; k2 < unitRatings.Count; k2++)
+		for (int l = 0; l < unitRatings.Count; l++)
 		{
 			if (ratingPool >= rating)
 			{
 				break;
 			}
-			Unit unit = unitRatings[k2].unit;
-			int garbageRating = 0;
-			UnitFactory.AddArmorStyleSet(tyche, ref garbageRating, unit);
-			int newRating = unit.GetRating();
-			ratingPool += newRating - unitRatings[k2].rating;
-			unitRatings[k2].rating = newRating;
+			Unit unit = unitRatings[l].unit;
+			int ratingPool3 = 0;
+			UnitFactory.AddArmorStyleSet(tyche, ref ratingPool3, unit);
+			int rating2 = unit.GetRating();
+			ratingPool += rating2 - unitRatings[l].rating;
+			unitRatings[l].rating = rating2;
 		}
 		bool hasChanges2 = true;
 		while (ratingPool < rating && hasChanges2)
 		{
 			hasChanges2 = false;
-			for (int n = 0; n < unitRatings.Count; n++)
+			for (int m = 0; m < unitRatings.Count; m++)
 			{
 				if (ratingPool >= rating)
 				{
 					break;
 				}
-				hasChanges2 |= AdvanceUnit(tyche, unitRatings[n], highestUnitRank, attributeDataList, rating, ref ratingPool);
+				hasChanges2 |= AdvanceUnit(tyche, unitRatings[m], highestUnitRank, attributeDataList, rating, ref ratingPool);
 			}
 			yield return null;
 		}
-		ItemQualityId maxQualityId = ItemQualityId.NORMAL;
+		ItemQualityId itemQualityId = ItemQualityId.NORMAL;
 		if (ratingPool < rating)
 		{
-			List<ProcWarbandRankJoinItemQualityData> procItemQualitiesData = PandoraSingleton<DataFactory>.Instance.InitData<ProcWarbandRankJoinItemQualityData>("fk_proc_warband_rank_id", procWarbandRank);
-			for (int p = 0; p < procItemQualitiesData.Count; p++)
+			List<ProcWarbandRankJoinItemQualityData> list4 = PandoraSingleton<DataFactory>.Instance.InitData<ProcWarbandRankJoinItemQualityData>("fk_proc_warband_rank_id", procWarbandRank);
+			for (int n = 0; n < list4.Count; n++)
 			{
-				ProcWarbandRankJoinItemQualityData warRankItemQualityData = procItemQualitiesData[p];
-				maxQualityId = ((warRankItemQualityData.ItemQualityId <= maxQualityId) ? maxQualityId : warRankItemQualityData.ItemQualityId);
-				int counter = tyche.Rand(warRankItemQualityData.MinCount, warRankItemQualityData.MaxCount + 1);
-				for (int m = 0; m < unitRatings.Count; m++)
+				ProcWarbandRankJoinItemQualityData procWarbandRankJoinItemQualityData = list4[n];
+				itemQualityId = ((procWarbandRankJoinItemQualityData.ItemQualityId <= itemQualityId) ? itemQualityId : procWarbandRankJoinItemQualityData.ItemQualityId);
+				int counter = tyche.Rand(procWarbandRankJoinItemQualityData.MinCount, procWarbandRankJoinItemQualityData.MaxCount + 1);
+				for (int num = 0; num < unitRatings.Count; num++)
 				{
-					UnitFactory.BoostItemsQuality(tyche, unitRatings[m].unit, warRankItemQualityData.ItemQualityId, ref ratingPool, ref counter, rating);
+					UnitFactory.BoostItemsQuality(tyche, unitRatings[num].unit, procWarbandRankJoinItemQualityData.ItemQualityId, ref ratingPool, ref counter, rating);
 				}
 			}
 		}
-		bool added = true;
-		while (added)
+		bool flag = true;
+		while (flag)
 		{
-			int j = 0;
-			while (added && j < unitRatings.Count)
+			int num2 = 0;
+			while (flag && num2 < unitRatings.Count)
 			{
-				added = false;
-				if (ratingPool < rating && !unitRatings[j].unit.IsInventoryFull())
+				flag = false;
+				if (ratingPool < rating && !unitRatings[num2].unit.IsInventoryFull())
 				{
-					Item cons = UnitFactory.GetProcItem(tyche, ref ratingPool, unitRatings[j].unit, UnitSlotId.ITEM_1, (tyche.Rand(0, 2) != 0) ? ItemTypeId.CONSUMABLE_POTIONS : ItemTypeId.CONSUMABLE_MISC, maxQualityId);
-					ratingPool += cons.GetRating();
-					unitRatings[j].unit.GetEmptyItemSlot(out UnitSlotId slotId, cons);
-					unitRatings[j].unit.EquipItem(slotId, cons);
-					added = true;
+					Item procItem = UnitFactory.GetProcItem(tyche, ref ratingPool, unitRatings[num2].unit, UnitSlotId.ITEM_1, (tyche.Rand(0, 2) != 0) ? ItemTypeId.CONSUMABLE_POTIONS : ItemTypeId.CONSUMABLE_MISC, itemQualityId);
+					ratingPool += procItem.GetRating();
+					unitRatings[num2].unit.GetEmptyItemSlot(out UnitSlotId slotId, procItem);
+					unitRatings[num2].unit.EquipItem(slotId, procItem);
+					flag = true;
 				}
-				j++;
+				num2++;
 			}
 		}
 		hasChanges2 = true;
 		while (ratingPool < rating && hasChanges2)
 		{
 			hasChanges2 = false;
-			for (int l = 0; l < unitRatings.Count; l++)
+			for (int num3 = 0; num3 < unitRatings.Count; num3++)
 			{
 				if (ratingPool >= rating)
 				{
 					break;
 				}
-				hasChanges2 |= AdvanceUnit(maxRank: GetWarbandRankUnitType(unitTypesData, unitRatings[l].unit.GetUnitTypeId()).MaxRank, tyche: tyche, unitRating: unitRatings[l], attributeDataList: attributeDataList, ratingCheck: rating, ratingPool: ref ratingPool);
+				ProcWarbandRankJoinUnitTypeData warbandRankUnitType = GetWarbandRankUnitType(unitTypesData, unitRatings[num3].unit.GetUnitTypeId());
+				hasChanges2 |= AdvanceUnit(tyche, unitRatings[num3], warbandRankUnitType.MaxRank, attributeDataList, rating, ref ratingPool);
 			}
 			yield return null;
 		}
-		for (int k = 0; k < unitRatings.Count; k++)
+		for (int num4 = 0; num4 < unitRatings.Count; num4++)
 		{
-			warSave.units.Add(unitRatings[k].unit.UnitSave);
+			warSave.units.Add(unitRatings[num4].unit.UnitSave);
 		}
 		callback?.Invoke(warSave);
 	}

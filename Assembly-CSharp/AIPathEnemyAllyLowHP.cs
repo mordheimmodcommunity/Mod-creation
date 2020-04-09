@@ -14,13 +14,21 @@ public class AIPathEnemyAllyLowHP : AIPathUnitBase
 		return true;
 	}
 
-	protected override void SetTargets(List<UnitController> allies)
+	protected override void SetTargets(List<UnitController> enemies)
 	{
-		for (int i = 0; i < allies.Count; i++)
+		int teamIdx = unitCtrlr.GetWarband().teamIdx;
+		for (int i = 0; i < enemies.Count; i++)
 		{
-			if (allies[i] != unitCtrlr && (float)allies[i].unit.CurrentWound < (float)allies[i].unit.Wound * 0.35f && allies[i].Engaged)
+			for (int j = 0; j < enemies[i].EngagedUnits.Count; j++)
 			{
-				targets.AddRange(allies[i].EngagedUnits);
+				if (enemies[i].EngagedUnits[j].GetWarband().teamIdx == teamIdx && !enemies[i].EngagedUnits[j].CanDisengage())
+				{
+					targets.Add(enemies[i]);
+				}
+				if (enemies[i].EngagedUnits[j].GetWarband().teamIdx == teamIdx && enemies[i].unit.IsLeader)
+				{
+					targets.Add(enemies[i]);
+				}
 			}
 		}
 	}

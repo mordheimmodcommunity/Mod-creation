@@ -390,6 +390,10 @@ public class UIMissionManager : PandoraSingleton<UIMissionManager>
 		{
 			ShowActionLog();
 		}
+		if (Input.GetKeyUp(KeyCode.F2))
+		{
+			CurrentUnitController.SetCombatCircle2(CurrentUnitController);
+		}
 		if (PandoraSingleton<PandoraInput>.Instance.GetKeyUp("more_info_unit") || PandoraSingleton<PandoraInput>.Instance.GetKeyUp("more_info_unit", 6))
 		{
 			if (++ShowingMoreInfoUnit >= UnitInfoState.MAX)

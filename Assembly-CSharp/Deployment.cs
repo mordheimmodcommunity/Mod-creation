@@ -7,12 +7,13 @@ public class Deployment : IMyrtilus, ICheapState
 {
 	private enum CommandList
 	{
-		NONE,
-		DEPLOY_HERE,
-		FORWARD,
-		BACKWARD,
-		DEPLOY_FINISHED,
-		COUNT
+		NONE = 0,
+		DEPLOY_HERE = 1,
+		FORWARD = 2,
+		BACKWARD = 3,
+		DEPLOY_FINISHED = 4,
+		COUNT = 6,
+		SPECIFIC_TYPE = 5
 	}
 
 	private MissionManager missionMngr;
@@ -429,41 +430,29 @@ public class Deployment : IMyrtilus, ICheapState
 	public void FindNextAvailableNode(int dir, bool impressive)
 	{
 		int num = spawnNodeIndex;
+		int num2 = spawnNodeIndex;
 		bool flag = false;
 		while (!flag)
 		{
-			spawnNodeIndex += dir;
-			if (spawnNodeIndex >= availableNodes.Count)
+			num2 += dir;
+			if (num2 >= availableNodes.Count)
 			{
-				spawnNodeIndex = 0;
+				num2 = 0;
 			}
-			else if (spawnNodeIndex < 0)
+			else if (num2 < 0)
 			{
-				spawnNodeIndex = availableNodes.Count - 1;
+				num2 = availableNodes.Count - 1;
 			}
-			if (num == spawnNodeIndex)
+			if (num == num2)
 			{
 				flag = true;
 			}
-			if (!availableNodes[spawnNodeIndex].claimed && ((availableNodes[spawnNodeIndex].IsOfType(SpawnNodeId.IMPRESSIVE) && impressive) || !impressive))
+			if (!availableNodes[num2].claimed && ((availableNodes[num2].IsOfType(SpawnNodeId.IMPRESSIVE) && impressive) || !impressive))
 			{
 				break;
 			}
 		}
-		if (currentFxs.Count > 0)
-		{
-			if (num != -1 && currentFxs[num] != null)
-			{
-				currentFxs[num].SetActive(value: true);
-			}
-			currentFxs[spawnNodeIndex].SetActive(value: false);
-		}
-		curUnitCtrl.transform.rotation = availableNodes[spawnNodeIndex].transform.rotation;
-		curUnitCtrl.SetFixed(availableNodes[spawnNodeIndex].transform.position, fix: true);
-		if (curUnitCtrl.IsPlayed())
-		{
-			PandoraSingleton<MissionManager>.Instance.CamManager.Transition();
-		}
+		SelectSpecificNode(num2);
 	}
 
 	public void RegisterToHermes()
@@ -497,6 +486,46 @@ public class Deployment : IMyrtilus, ICheapState
 		case 4u:
 			DeploymentFinishedRPC();
 			break;
+		case 5u:
+			SelectSpecificNode((int)parms[0]);
+			break;
 		}
+	}
+
+	public void SelectSpecificNode(int nodeId)
+	{
+		int num = spawnNodeIndex;
+		spawnNodeIndex = nodeId;
+		if (currentFxs.Count > 0)
+		{
+			if (num != -1 && currentFxs[num] != null)
+			{
+				currentFxs[num].SetActive(value: true);
+			}
+			currentFxs[spawnNodeIndex].SetActive(value: false);
+		}
+		curUnitCtrl.transform.rotation = availableNodes[spawnNodeIndex].transform.rotation;
+		curUnitCtrl.SetFixed(availableNodes[spawnNodeIndex].transform.position, fix: true);
+		if (curUnitCtrl.IsPlayed())
+		{
+			PandoraSingleton<MissionManager>.Instance.CamManager.Transition();
+		}
+	}
+
+	public void RecenterCameraOnDeployedUnit()
+	{
+		missionMngr.CamManager.SwitchToCam(CameraManager.CameraType.DEPLOY, curUnitCtrl.transform, transition: true, force: true, curUnitCtrl.unit.Data.UnitSizeId == UnitSizeId.LARGE);
+	}
+
+	public int FindSpawnNodeIndex(SpawnNode node)
+	{
+		for (int i = 0; i < availableNodes.Count; i++)
+		{
+			if (node == availableNodes[i])
+			{
+				return i;
+			}
+		}
+		return -1;
 	}
 }

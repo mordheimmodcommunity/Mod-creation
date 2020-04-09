@@ -7,30 +7,37 @@ public class Progressor
 
 	private const int MULTIPLE_INJURY_COUNT = 3;
 
-	private static readonly InjuryId[] INJURY_EXCLUDES = new InjuryId[3]
-	{
-		InjuryId.DEAD,
-		InjuryId.MULTIPLE_INJURIES,
-		InjuryId.FULL_RECOVERY
-	};
+	private static readonly InjuryId[] INJURY_EXCLUDES;
 
-	private static readonly UnitTypeId[] LOWEST_RANK_UNIT_TYPES = new UnitTypeId[5]
-	{
-		UnitTypeId.HERO_3,
-		UnitTypeId.HERO_2,
-		UnitTypeId.HERO_1,
-		UnitTypeId.HENCHMEN,
-		UnitTypeId.LEADER
-	};
+	private static readonly UnitTypeId[] LOWEST_RANK_UNIT_TYPES;
 
-	private static readonly UnitTypeId[] HIGHEST_RANK_UNIT_TYPES = new UnitTypeId[5]
+	private static readonly UnitTypeId[] HIGHEST_RANK_UNIT_TYPES;
+
+	static Progressor()
 	{
-		UnitTypeId.HERO_1,
-		UnitTypeId.HERO_2,
-		UnitTypeId.HERO_3,
-		UnitTypeId.HENCHMEN,
-		UnitTypeId.LEADER
-	};
+		INJURY_EXCLUDES = new InjuryId[3]
+		{
+			InjuryId.DEAD,
+			InjuryId.MULTIPLE_INJURIES,
+			InjuryId.FULL_RECOVERY
+		};
+		LOWEST_RANK_UNIT_TYPES = new UnitTypeId[5]
+		{
+			UnitTypeId.HERO_3,
+			UnitTypeId.HERO_2,
+			UnitTypeId.HERO_1,
+			UnitTypeId.HENCHMEN,
+			UnitTypeId.LEADER
+		};
+		HIGHEST_RANK_UNIT_TYPES = new UnitTypeId[5]
+		{
+			UnitTypeId.HERO_1,
+			UnitTypeId.HERO_2,
+			UnitTypeId.HERO_3,
+			UnitTypeId.HENCHMEN,
+			UnitTypeId.LEADER
+		};
+	}
 
 	public void UpdateUnitStats(MissionEndUnitSave endUnit, Unit unit)
 	{
@@ -282,7 +289,7 @@ public class Progressor
 		int value = 0;
 		unit.UnitSave.stats.stats.TryGetValue(141, out value);
 		int num2 = endUnit.GetAttribute(AttributeId.TOTAL_KILL) - value;
-		if (num2 > 0)
+		if (num2 > 0 && !endMission.isCampaign)
 		{
 			num += num2 * Constant.GetInt(ConstantId.UNIT_XP_OUT_OF_ACTION);
 			endUnit.XPs.Add(new KeyValuePair<int, string>(num2 * Constant.GetInt(ConstantId.UNIT_XP_OUT_OF_ACTION), "end_game_ooa"));
@@ -317,8 +324,7 @@ public class Progressor
 			return;
 		}
 		PandoraSingleton<GameManager>.Instance.Profile.CheckAchievement(unit, AttributeId.RANK, unit.GetAttribute(AttributeId.RANK));
-		UnitRankData unitRankData = PandoraSingleton<DataFactory>.Instance.InitData<UnitRankData>((int)unit.UnitSave.rankId);
-		if (unitRankData.Rank != Constant.GetInt(ConstantId.MAX_UNIT_RANK))
+		if (PandoraSingleton<DataFactory>.Instance.InitData<UnitRankData>((int)unit.UnitSave.rankId).Rank != Constant.GetInt(ConstantId.MAX_UNIT_RANK))
 		{
 			return;
 		}
@@ -343,15 +349,6 @@ public class Progressor
 				PandoraSingleton<Hephaestus>.Instance.UnlockAchievement(Hephaestus.TrophyId.LEADER_NO_INJURY);
 			}
 			break;
-		case UnitTypeId.HERO_1:
-		case UnitTypeId.HERO_2:
-		case UnitTypeId.HERO_3:
-			PandoraSingleton<Hephaestus>.Instance.IncrementStat(Hephaestus.StatId.HERO_RANK_10, 1);
-			if (flag)
-			{
-				PandoraSingleton<Hephaestus>.Instance.UnlockAchievement(Hephaestus.TrophyId.HERO_NO_INJURY);
-			}
-			break;
 		case UnitTypeId.HENCHMEN:
 			PandoraSingleton<Hephaestus>.Instance.IncrementStat(Hephaestus.StatId.HENCHMEN_RANK_10, 1);
 			if (flag)
@@ -364,6 +361,15 @@ public class Progressor
 			if (flag)
 			{
 				PandoraSingleton<Hephaestus>.Instance.UnlockAchievement(Hephaestus.TrophyId.IMPRESSIVE_NO_INJURY);
+			}
+			break;
+		case UnitTypeId.HERO_1:
+		case UnitTypeId.HERO_2:
+		case UnitTypeId.HERO_3:
+			PandoraSingleton<Hephaestus>.Instance.IncrementStat(Hephaestus.StatId.HERO_RANK_10, 1);
+			if (flag)
+			{
+				PandoraSingleton<Hephaestus>.Instance.UnlockAchievement(Hephaestus.TrophyId.HERO_NO_INJURY);
 			}
 			break;
 		}

@@ -15,47 +15,23 @@ public class AIController
 		FAREST
 	}
 
-	public const int ACTION_MAX_TARGET = 3;
+	public const int ACTION_MAX_TARGET = 2;
 
 	public const int MIN_ROLL = 50;
 
-	public static List<UnitActionId> attackActions = new List<UnitActionId>
-	{
-		UnitActionId.MELEE_ATTACK
-	};
+	public static List<UnitActionId> attackActions;
 
-	public static List<UnitActionId> spellActions = new List<UnitActionId>
-	{
-		UnitActionId.SPELL
-	};
+	public static List<UnitActionId> spellActions;
 
-	public static List<UnitActionId> consSkillActions = new List<UnitActionId>
-	{
-		UnitActionId.CONSUMABLE,
-		UnitActionId.SKILL
-	};
+	public static List<UnitActionId> consSkillActions;
 
-	public static List<UnitActionId> consSkillSpellActions = new List<UnitActionId>
-	{
-		UnitActionId.CONSUMABLE,
-		UnitActionId.SPELL,
-		UnitActionId.SKILL
-	};
+	public static List<UnitActionId> consSkillSpellActions;
 
-	public static List<UnitActionId> chargeActions = new List<UnitActionId>
-	{
-		UnitActionId.CHARGE
-	};
+	public static List<UnitActionId> chargeActions;
 
-	public static List<UnitActionId> shootActions = new List<UnitActionId>
-	{
-		UnitActionId.SHOOT
-	};
+	public static List<UnitActionId> shootActions;
 
-	public static List<UnitActionId> stanceActions = new List<UnitActionId>
-	{
-		UnitActionId.STANCE
-	};
+	public static List<UnitActionId> stanceActions;
 
 	private UnitController unitCtrlr;
 
@@ -223,6 +199,41 @@ public class AIController
 		}
 	}
 
+	static AIController()
+	{
+		attackActions = new List<UnitActionId>
+		{
+			UnitActionId.MELEE_ATTACK
+		};
+		spellActions = new List<UnitActionId>
+		{
+			UnitActionId.SPELL
+		};
+		consSkillActions = new List<UnitActionId>
+		{
+			UnitActionId.CONSUMABLE,
+			UnitActionId.SKILL
+		};
+		consSkillSpellActions = new List<UnitActionId>
+		{
+			UnitActionId.CONSUMABLE,
+			UnitActionId.SPELL,
+			UnitActionId.SKILL
+		};
+		chargeActions = new List<UnitActionId>
+		{
+			UnitActionId.CHARGE
+		};
+		shootActions = new List<UnitActionId>
+		{
+			UnitActionId.SHOOT
+		};
+		stanceActions = new List<UnitActionId>
+		{
+			UnitActionId.STANCE
+		};
+	}
+
 	public void SetAIProfile(AiProfileId profileId)
 	{
 		aiProfileId = profileId;
@@ -316,8 +327,8 @@ public class AIController
 
 	private void SetBT(AiUnitId aiId)
 	{
-		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005d: Expected O, but got Unknown
+		//IL_004d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0057: Expected O, but got Unknown
 		previousAIId = ((aiUnitData != null) ? aiUnitData.Id : AiUnitId.NONE);
 		aiUnitData = PandoraSingleton<DataFactory>.Instance.InitData<AiUnitData>((int)aiId);
 		bt = (BTAsset)(object)(BTAsset)Object.Instantiate(Resources.Load("ai/" + aiUnitData.Name));
@@ -506,8 +517,7 @@ public class AIController
 			int num4 = 0;
 			while (!flag && num4 < currentPath.vectorPath.Count - 1)
 			{
-				float num5 = PandoraUtils.SqrDistPointLineDist(currentPath.vectorPath[num4], currentPath.vectorPath[num4 + 1], decisionPoints[num3].transform.position, isSegment: true);
-				if (num5 < num2)
+				if (PandoraUtils.SqrDistPointLineDist(currentPath.vectorPath[num4], currentPath.vectorPath[num4 + 1], decisionPoints[num3].transform.position, isSegment: true) < num2)
 				{
 					flag = true;
 				}
@@ -607,7 +617,7 @@ public class AIController
 
 	private void StartPathsCheck<T>(List<T> behaviours, BestPathType pathType, bool checkDecisionAfter, bool forceDecisionAfter, bool keepReachable, bool fallbackToOld, UnityAction precheck, UnityAction<bool> postCheck, UnityAction pathFound, UnityAction cannotReach) where T : MonoBehaviour
 	{
-		if (targetDecisionPoint != null && (forceDecisionAfter || checkDecisionAfter))
+		if (targetDecisionPoint != null && (forceDecisionAfter | checkDecisionAfter))
 		{
 			FindPathDecision(unitCtrlr.transform.position, fallBackOnOldPath: false);
 			return;
@@ -637,9 +647,7 @@ public class AIController
 		oldPath = currentPath;
 		currentPath = null;
 		targetDecisionPoint = null;
-		bool flag = unitCtrlr.unit.Data.UnitSizeId == UnitSizeId.LARGE;
-		int num = 0;
-		num = ((!flag) ? 127 : 113);
+		int num = (unitCtrlr.unit.Data.UnitSizeId != UnitSizeId.LARGE) ? 127 : 113;
 		if (unitCtrlr.unit.IsUnitActionBlocked(UnitActionId.CLIMB))
 		{
 			num = (num & -3 & -17);
@@ -671,30 +679,25 @@ public class AIController
 		{
 			yield return 0;
 		}
-		ABPath abPath = ABPath.Construct(unitCtrlr.transform.position, targets[pathIdx].position);
-		abPath.calculatePartial = true;
-		PandoraSingleton<MissionManager>.Instance.PathSeeker.StartPath(abPath, OnPathFinish);
+		ABPath aBPath = ABPath.Construct(unitCtrlr.transform.position, targets[pathIdx].position);
+		aBPath.calculatePartial = true;
+		PandoraSingleton<MissionManager>.Instance.PathSeeker.StartPath(aBPath, OnPathFinish);
 	}
 
 	private void OnPathFinish(Path p)
 	{
 		bool flag = false;
 		calculatedPath = p;
-		if (p.vectorPath.Count > 0)
+		if (p.vectorPath.Count > 0 && ((ABPath)p).endNode == AstarPath.active.GetNearest(targets[pathIdx].position).node)
 		{
-			GraphNode endNode = ((ABPath)p).endNode;
-			NNInfo nearest = AstarPath.active.GetNearest(targets[pathIdx].position);
-			if (endNode == nearest.node)
+			float totalLength = p.GetTotalLength();
+			flag = (totalLength < maxDist);
+			if ((!keepOnlyReachable || (keepOnlyReachable && flag)) && (currentPath == null || (bestPathType == BestPathType.CLOSEST && totalLength < currentPathLg) || (bestPathType == BestPathType.FAREST && totalLength > currentPathLg)))
 			{
-				float totalLength = p.GetTotalLength();
-				flag = (totalLength < maxDist);
-				if ((!keepOnlyReachable || (keepOnlyReachable && flag)) && (currentPath == null || (bestPathType == BestPathType.CLOSEST && totalLength < currentPathLg) || (bestPathType == BestPathType.FAREST && totalLength > currentPathLg)))
-				{
-					bestTarget = targets[pathIdx];
-					currentPath = p;
-					currentPathLg = totalLength;
-					PathFound();
-				}
+				bestTarget = targets[pathIdx];
+				currentPath = p;
+				currentPathLg = totalLength;
+				PathFound();
 			}
 		}
 		if (PostCheck != null)
@@ -711,13 +714,13 @@ public class AIController
 		PandoraDebug.LogInfo("All paths checked!", "PATHFINDING");
 		if (currentPath != null)
 		{
-			bool flag2 = currentPathLg <= maxDist;
-			if (!flag2 && CannotReach != null)
+			bool num = currentPathLg <= maxDist;
+			if (!num && CannotReach != null)
 			{
 				PandoraDebug.LogInfo("Cannot Reach", "PATHFINDING");
 				CannotReach();
 			}
-			if ((!flag2 && checkDecisionOnCannotReach) || forceDecisionCheck)
+			if ((!num && checkDecisionOnCannotReach) || forceDecisionCheck)
 			{
 				FindPathDecision(bestTarget.position, !forceDecisionCheck);
 				return;
@@ -785,13 +788,13 @@ public class AIController
 				PandoraDebug.LogInfo("Skill " + unitCtrlr.actionStatus[i].SkillId + " filter result = " + aiFilterResultId, "AI");
 				switch (aiFilterResultId)
 				{
-				case AiFilterResultId.VALID:
-					validActions.Add(unitCtrlr.actionStatus[i]);
-					validTargets.Add(list[j]);
-					break;
 				case AiFilterResultId.NONE:
 					allActions.Add(unitCtrlr.actionStatus[i]);
 					allTargets.Add(list[j]);
+					break;
+				case AiFilterResultId.VALID:
+					validActions.Add(unitCtrlr.actionStatus[i]);
+					validTargets.Add(list[j]);
 					break;
 				}
 			}
@@ -859,7 +862,7 @@ public class AIController
 				break;
 			}
 		}
-		int roll = action.GetRoll();
+		action.GetRoll();
 		if (CheckFilterType(excludeFilters, AiFilterResultId.EXCLUDED))
 		{
 			return AiFilterResultId.EXCLUDED;
@@ -969,9 +972,7 @@ public class AIController
 		}
 		if (flag && filterData.NeverUsedOnTarget)
 		{
-			SkillData skillData = PandoraSingleton<DataFactory>.Instance.InitData<SkillData>((int)filterData.SkillId);
-			TargetingId targetingId = skillData.TargetingId;
-			flag = ((targetingId != TargetingId.SINGLE_TARGET) ? (flag & ((!reverse && !skillTargets.ContainsKey(filterData.SkillId)) || (reverse && skillTargets.ContainsKey(filterData.SkillId)))) : ((!skillTargets.TryGetValue(filterData.SkillId, out List<UnitController> value)) ? (flag && !reverse) : (flag & ((!reverse && value.IndexOf(unitController) == -1) || (reverse && value.IndexOf(unitController) != -1)))));
+			flag = ((PandoraSingleton<DataFactory>.Instance.InitData<SkillData>((int)filterData.SkillId).TargetingId != TargetingId.SINGLE_TARGET) ? (flag & ((!reverse && !skillTargets.ContainsKey(filterData.SkillId)) || (reverse && skillTargets.ContainsKey(filterData.SkillId)))) : ((!skillTargets.TryGetValue(filterData.SkillId, out List<UnitController> value)) ? (flag && !reverse) : (flag & ((!reverse && value.IndexOf(unitController) == -1) || (reverse && value.IndexOf(unitController) != -1)))));
 		}
 		if (flag && filterData.NeverUsedTurn)
 		{

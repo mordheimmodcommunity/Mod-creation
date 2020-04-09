@@ -154,7 +154,6 @@ public class LocalizationManager : PandoraSingleton<LocalizationManager>
 
 	private string GetStringById2(string key, string[] parameters)
 	{
-		//Discarded unreachable code: IL_0098
 		uint key2 = FNV1a.ComputeHash(key);
 		if (language.ContainsKey(key2))
 		{
@@ -167,7 +166,7 @@ public class LocalizationManager : PandoraSingleton<LocalizationManager>
 						parameters[i] = GetStringById(parameters[i].Replace("#", string.Empty));
 					}
 				}
-				if (parameters.Length > 0)
+				if (parameters.Length != 0)
 				{
 					StringBuilder stringBuilder = PandoraUtils.StringBuilder;
 					stringBuilder.AppendFormat(language[key2], parameters);
@@ -177,13 +176,19 @@ public class LocalizationManager : PandoraSingleton<LocalizationManager>
 			}
 			catch
 			{
+				return key;
 			}
 		}
-		else if (key.StartsWith("#", StringComparison.OrdinalIgnoreCase))
+		if (key.StartsWith("#", StringComparison.OrdinalIgnoreCase))
 		{
 			return Regex.Replace(key, "(?<![=])#(\\w+)", ConvertMatchToLocalization);
 		}
-		return "++" + key;
+		Regex.Replace(key, "item", string.Empty);
+		Regex.Replace(key, "enchantment", string.Empty);
+		Regex.Replace(key, "name", string.Empty);
+		Regex.Replace(key, "skill", string.Empty);
+		Regex.Replace(key, "_", " ");
+		return key;
 	}
 
 	private string ConvertMatchToLocalization(Match match)

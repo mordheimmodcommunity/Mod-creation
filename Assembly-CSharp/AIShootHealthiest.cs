@@ -15,7 +15,7 @@ public class AIShootHealthiest : AIShootBase
 
 	protected override bool IsBetter(int currentVal, int val)
 	{
-		return currentVal > val;
+		return currentVal < val;
 	}
 
 	protected override int GetCriteriaValue(UnitController current)

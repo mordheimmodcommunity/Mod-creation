@@ -639,6 +639,11 @@ public class UnitController : UnitMenuController, IMyrtilus
 		CapsuleCollider capsuleCollider = (CapsuleCollider)GetComponent<Collider>();
 		CapsuleHeight = capsuleCollider.height;
 		CapsuleRadius = capsuleCollider.radius;
+		if (CapsuleRadius == 0.9f)
+		{
+			capsuleCollider.radius = 0.65f;
+			capsuleCollider.SetCenter();
+		}
 	}
 
 	private void Start()
@@ -823,7 +828,11 @@ public class UnitController : UnitMenuController, IMyrtilus
 				}
 				if (GetWarband().IsRoaming())
 				{
-					unit.AddEnchantment(PandoraSingleton<DataFactory>.Instance.InitData<ProcMissionRatingData>(1).EnchantmentId, unit, original: false, updateAttributes: false);
+					unit.AddEnchantment(PandoraSingleton<DataFactory>.Instance.InitData<ProcMissionRatingData>(PandoraSingleton<MissionStartData>.Instance.CurrentMission.missionSave.ratingId).EnchantmentId, unit, original: false, updateAttributes: false);
+					if (PandoraSingleton<MissionStartData>.Instance.CurrentMission.missionSave.isSkirmish)
+					{
+						unit.AddEnchantment(PandoraSingleton<DataFactory>.Instance.InitData<ProcMissionRatingData>(3).EnchantmentId, unit, original: false, updateAttributes: false);
+					}
 				}
 				else
 				{
@@ -831,6 +840,10 @@ public class UnitController : UnitMenuController, IMyrtilus
 				}
 				if (unit.UnitSave.campaignId != 0)
 				{
+					int num3 = 970;
+					num3 += unit.Rank;
+					unit.AddEnchantment((EnchantmentId)num3, unit, original: false, updateAttributes: false);
+					unit.AddEnchantment(PandoraSingleton<DataFactory>.Instance.InitData<ProcMissionRatingData>(PandoraSingleton<MissionStartData>.Instance.CurrentMission.missionSave.ratingId).EnchantmentId, unit, original: false, updateAttributes: false);
 					unit.AddEnchantment(EnchantmentId.PERK_NO_SEARCH, unit, original: false, updateAttributes: false);
 				}
 			}
@@ -3134,22 +3147,22 @@ public class UnitController : UnitMenuController, IMyrtilus
 		else
 		{
 			combatCircle.gameObject.SetActive(value: true);
-			float num = 0f;
 			Quaternion quaternion = currentUnit.transform.rotation;
+			float @float;
 			float sizeB;
 			if (unit.Id == UnitId.MANTICORE || currentUnit.unit.Id == UnitId.MANTICORE)
 			{
-				num = Constant.GetFloat(ConstantId.MELEE_RANGE_VERY_LARGE);
+				@float = Constant.GetFloat(ConstantId.MELEE_RANGE_VERY_LARGE);
 				sizeB = Constant.GetFloat(ConstantId.MELEE_RANGE_VERY_VERY_LARGE);
 				quaternion = ((unit.Id != UnitId.MANTICORE) ? quaternion : base.transform.rotation);
 			}
 			else
 			{
-				num = Constant.GetFloat((unit.Data.UnitSizeId != UnitSizeId.LARGE && currentUnit.unit.Data.UnitSizeId != UnitSizeId.LARGE) ? ConstantId.MELEE_RANGE_NORMAL : ConstantId.MELEE_RANGE_LARGE);
-				sizeB = num;
+				@float = Constant.GetFloat((unit.Data.UnitSizeId != UnitSizeId.LARGE && currentUnit.unit.Data.UnitSizeId != UnitSizeId.LARGE) ? ConstantId.MELEE_RANGE_NORMAL : ConstantId.MELEE_RANGE_LARGE);
+				sizeB = @float;
 			}
 			float currentUnitRadius = (currentUnit.unit.Id != UnitId.MANTICORE) ? currentUnit.CapsuleRadius : (currentUnit.CapsuleHeight / 2f);
-			combatCircle.Set(IsEnemy(currentUnit), Engaged, currentUnit.IsPlayed(), num, sizeB, currentUnitRadius, quaternion);
+			combatCircle.Set(IsEnemy(currentUnit), Engaged, currentUnit.IsPlayed(), @float, sizeB, currentUnitRadius, quaternion);
 		}
 		SetGraphWalkability(!combatCircle.gameObject.activeSelf);
 		SetCombatCircleAlpha(currentUnit);
@@ -4064,7 +4077,7 @@ public class UnitController : UnitMenuController, IMyrtilus
 
 	private void SendSpeedPosition()
 	{
-		Send(false, Hermes.SendTarget.OTHERS, uid, 1u, animator.GetFloat(AnimatorIds.speed), base.transform.rotation, base.transform.position);
+		Send(true, Hermes.SendTarget.OTHERS, uid, 1u, animator.GetFloat(AnimatorIds.speed), base.transform.rotation, base.transform.position);
 	}
 
 	private void NetworkSyncRPC(float speed, Quaternion rot, Vector3 pos)
@@ -5478,5 +5491,20 @@ public class UnitController : UnitMenuController, IMyrtilus
 			break;
 		}
 		}
+	}
+
+	public void SetCombatCircle2(UnitController currentUnit, bool forced = true)
+	{
+		combatCircle.gameObject.SetActive(value: true);
+		Quaternion rotation = currentUnit.transform.rotation;
+		float @float = Constant.GetFloat((unit.Data.UnitSizeId != UnitSizeId.LARGE) ? ConstantId.MELEE_RANGE_NORMAL : ConstantId.MELEE_RANGE_LARGE);
+		float sizeB = @float;
+		float capsuleRadius = currentUnit.CapsuleRadius;
+		combatCircle.Set(isEnemy: false, isEngaged: false, currentUnitIsPlayed: true, @float, sizeB, capsuleRadius, rotation);
+		SetGraphWalkability(walkable: true);
+		Color magenta = Color.magenta;
+		PandoraSingleton<DynamicCombatCircle>.Instance.friendly.color = magenta;
+		combatCircle.SetAlpha(1f);
+		PandoraSingleton<DynamicCombatCircle>.Instance.friendly.color = Color.cyan;
 	}
 }

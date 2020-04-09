@@ -29,4 +29,14 @@ public class DynamicChargeCircle : DynamicCircle
 		DetectCollisions(chargeDist, chargeDist, base.transform.parent.transform.rotation, flatEnv: true, -0.2f, ref displayPoints);
 		CreateCylinderOutlineMesh(cylinderMesh, displayPoints, -0.1f, 1.5f);
 	}
+
+	public void Set2(float chargeDist, float radius)
+	{
+		sphereRadius = radius;
+		capsuleMinHeight = radius + 0.4f;
+		GetComponent<Renderer>().material.color = Color.yellow;
+		DetectCollisions(chargeDist, chargeDist, base.transform.parent.transform.rotation, flatEnv: true, -0.2f, ref displayPoints);
+		CreateCylinderOutlineMesh(cylinderMesh, displayPoints, -0.1f, 1.5f);
+		GetComponent<Renderer>().material.color = Color.yellow;
+	}
 }

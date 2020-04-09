@@ -18,12 +18,12 @@ public class AIPathHealthiestEnemy : AIPathUnitBase
 	{
 		for (int i = 0; i < enemies.Count; i++)
 		{
-			if (targets.Count == 0 || enemies[i].unit.CurrentWound > targets[0].unit.CurrentWound)
+			if (targets.Count == 0 || enemies[i].unit.CurrentWound < targets[0].unit.CurrentWound)
 			{
 				targets.Clear();
 				targets.Add(enemies[i]);
 			}
-			else if (enemies[i].unit.CurrentWound == targets[0].unit.CurrentWound)
+			else if (enemies[i].unit.CurrentWound <= targets[0].unit.CurrentWound)
 			{
 				targets.Add(enemies[i]);
 			}

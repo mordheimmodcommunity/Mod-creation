@@ -4,35 +4,13 @@ using UnityEngine;
 
 public class Unit
 {
-	public static readonly AttributeId[] PhysicalAttributeIds = new AttributeId[3]
-	{
-		AttributeId.STRENGTH,
-		AttributeId.TOUGHNESS,
-		AttributeId.AGILITY
-	};
+	public static readonly AttributeId[] PhysicalAttributeIds;
 
-	public static readonly AttributeId[] MentalAttributeIds = new AttributeId[3]
-	{
-		AttributeId.LEADERSHIP,
-		AttributeId.INTELLIGENCE,
-		AttributeId.ALERTNESS
-	};
+	public static readonly AttributeId[] MentalAttributeIds;
 
-	public static readonly AttributeId[] MartialAttributeIds = new AttributeId[3]
-	{
-		AttributeId.WEAPON_SKILL,
-		AttributeId.BALLISTIC_SKILL,
-		AttributeId.ACCURACY
-	};
+	public static readonly AttributeId[] MartialAttributeIds;
 
-	public static readonly InjuryId[] HIRE_UNIT_INJURY_EXCLUDES = new InjuryId[5]
-	{
-		InjuryId.DEAD,
-		InjuryId.MULTIPLE_INJURIES,
-		InjuryId.NEAR_DEATH,
-		InjuryId.FULL_RECOVERY,
-		InjuryId.AMNESIA
-	};
+	public static readonly InjuryId[] HIRE_UNIT_INJURY_EXCLUDES;
 
 	public int warbandIdx;
 
@@ -606,6 +584,36 @@ public class Unit
 	{
 		UnitSave = us;
 		Init();
+	}
+
+	static Unit()
+	{
+		PhysicalAttributeIds = new AttributeId[3]
+		{
+			AttributeId.STRENGTH,
+			AttributeId.TOUGHNESS,
+			AttributeId.AGILITY
+		};
+		MentalAttributeIds = new AttributeId[3]
+		{
+			AttributeId.LEADERSHIP,
+			AttributeId.INTELLIGENCE,
+			AttributeId.ALERTNESS
+		};
+		MartialAttributeIds = new AttributeId[3]
+		{
+			AttributeId.WEAPON_SKILL,
+			AttributeId.BALLISTIC_SKILL,
+			AttributeId.ACCURACY
+		};
+		HIRE_UNIT_INJURY_EXCLUDES = new InjuryId[5]
+		{
+			InjuryId.DEAD,
+			InjuryId.MULTIPLE_INJURIES,
+			InjuryId.NEAR_DEATH,
+			InjuryId.FULL_RECOVERY,
+			InjuryId.AMNESIA
+		};
 	}
 
 	public static Unit GenerateUnit(UnitId unitId, int rank)
@@ -3221,7 +3229,11 @@ public class Unit
 
 	public bool HasRange()
 	{
-		return Items[(int)ActiveWeaponSlot] != null && Items[(int)ActiveWeaponSlot].TypeData != null && Items[(int)ActiveWeaponSlot].TypeData.IsRange;
+		if (Items[(int)ActiveWeaponSlot] != null && Items[(int)ActiveWeaponSlot].TypeData != null)
+		{
+			return Items[(int)ActiveWeaponSlot].TypeData.IsRange;
+		}
+		return false;
 	}
 
 	private void ApplyRuneMark(RuneMark runeMark)
@@ -4611,5 +4623,14 @@ public class Unit
 			num = (int)(num + Enchantments[i].Id);
 		}
 		return num;
+	}
+
+	public bool HasNoRange()
+	{
+		if (Items[(int)ActiveWeaponSlot] != null && Items[(int)ActiveWeaponSlot].TypeData != null && !Items[(int)ActiveWeaponSlot].TypeData.IsRange)
+		{
+			return !Items[(int)InactiveWeaponSlot].TypeData.IsRange;
+		}
+		return false;
 	}
 }
