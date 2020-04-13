@@ -12,13 +12,7 @@ public class OverviewCamera : ICheapState
 
     private Vector3 lookAtTargetTargetPosition;
 
-    private static readonly int[] zoomLevels = new int[4]
-    {
-        10,
-        20,
-        30,
-        40
-    };
+    private static readonly int[] zoomLevels;
 
     public int zoomIdx;
 
@@ -108,6 +102,17 @@ public class OverviewCamera : ICheapState
         SetTargetRotation();
         cyclingUnitIdx = 0;
         cyclingUnits = new List<UnitController>();
+    }
+
+    static OverviewCamera()
+    {
+        zoomLevels = new int[4]
+        {
+            10,
+            20,
+            30,
+            40
+        };
     }
 
     public void Destroy()
@@ -323,7 +328,7 @@ public class OverviewCamera : ICheapState
             Vector3 forward = lookAtTarget.transform.forward;
             forward.y = 0f;
             Vector3 a = axisRaw * lookAtTarget.transform.right + axisRaw2 * forward;
-            moveSpeed = ((!(moveSpeed + moveSpeedIncrease * increaseTime < moveSpeedMax)) ? moveSpeedMax : (moveSpeed + moveSpeedIncrease * increaseTime));
+            moveSpeed = ((moveSpeed + moveSpeedIncrease * increaseTime >= moveSpeedMax) ? moveSpeedMax : (moveSpeed + moveSpeedIncrease * increaseTime));
             increaseTime += Time.smoothDeltaTime;
             position += a * moveSpeed * Time.smoothDeltaTime;
             if (PandoraSingleton<MissionManager>.Instance.mapContour != null)
@@ -370,18 +375,17 @@ public class OverviewCamera : ICheapState
         }
         if (currentZoom != targetZoom)
         {
-            currentZoom += zoomSpeed * Time.smoothDeltaTime * (float)((currentZoom < targetZoom) ? 1 : (-1));
+            currentZoom += zoomSpeed * Time.smoothDeltaTime * (float)((!(currentZoom >= targetZoom)) ? 1 : (-1));
             if ((oldZoom >= targetZoom && currentZoom < targetZoom) || (oldZoom < targetZoom && currentZoom > targetZoom))
             {
                 currentZoom = targetZoom;
             }
         }
-        Vector3 position2 = lookAtTarget.transform.position;
-        position2.y = 40f;
+        lookAtTarget.transform.position.Set(lookAtTarget.transform.position.x, 40f, lookAtTarget.transform.position.z);
         Camera main = Camera.main;
         main.orthographicSize = currentZoom;
-        Vector3 position3 = lookAtTarget.transform.position;
-        main.transform.position = position3;
+        Vector3 position2 = lookAtTarget.transform.position;
+        main.transform.position = position2;
         Quaternion rotation = Quaternion.LookRotation(Vector3.down);
         rotation *= Quaternion.Euler(0f, 0f, 0f - currentRotation);
         Vector3[] array = new Vector3[4]
@@ -396,38 +400,37 @@ public class OverviewCamera : ICheapState
         {
             vector2 += array[i] - mapBounds.ClosestPoint(array[i]);
         }
-        position3 -= vector2;
-        float num2 = array[1].x - array[3].x;
-        Vector3 size = mapBounds.size;
-        if (num2 > size.x)
+        position2 -= vector2;
+        if (array[1].x - array[3].x > mapBounds.size.x)
         {
-            Vector3 center = mapBounds.center;
-            position3.x = center.x;
+            position2.x = mapBounds.center.x;
         }
-        float num3 = array[0].z - array[2].z;
-        Vector3 size2 = mapBounds.size;
-        if (num3 > size2.z)
+        if (array[0].z - array[2].z > mapBounds.size.z)
         {
-            Vector3 center2 = mapBounds.center;
-            position3.z = center2.z;
+            position2.z = mapBounds.center.z;
         }
-        position3.y = 40f;
-        dummyCam.position = position3;
+        position2.y = 40f;
+        dummyCam.position = position2;
         dummyCam.rotation = rotation;
-        Vector3 position4 = lookAtTarget.transform.position;
-        position4.y = 0f;
+        Vector3 position3 = lookAtTarget.transform.position;
+        position3.y = 0f;
         currentSelectedIdx = -1;
-        float num4 = float.MaxValue;
+        float num2 = float.MaxValue;
         for (int j = 0; j < flyingOverviews.Count; j++)
         {
             if (flyingOverviews[j] != null && flyingOverviews[j].imprint != null)
             {
-                Vector3 position5 = flyingOverviews[j].imprint.transform.position;
-                position5.y = 0f;
-                float num5 = Vector3.SqrMagnitude(position4 - position5);
-                if (num5 < 4f && num5 < num4)
+                Vector3 b = flyingOverviews[j].imprint.transform.position;
+                MapImprint imprint = flyingOverviews[j].imprint;
+                if (imprint.imprintType == MapImprintType.UNIT && imprint.State != 0)
                 {
-                    num4 = num5;
+                    b = imprint.lastKnownPos;
+                }
+                b.y = 0f;
+                float num3 = Vector3.SqrMagnitude(position3 - b);
+                if (num3 < 4f && num3 < num2)
+                {
+                    num2 = num3;
                     currentSelectedIdx = j;
                 }
             }
@@ -437,27 +440,30 @@ public class OverviewCamera : ICheapState
         if (currentSelectedIdx != -1)
         {
             flag2 = false;
-            MapImprint imprint = flyingOverviews[currentSelectedIdx].imprint;
-            switch (imprint.imprintType)
+            MapImprint imprint2 = flyingOverviews[currentSelectedIdx].imprint;
+            switch (imprint2.imprintType)
             {
                 case MapImprintType.UNIT:
-                    SelectCurrentUnit(imprint.UnitCtrlr);
-                    flag = false;
+                    if (imprint2.State == MapImprintStateId.VISIBLE)
+                    {
+                        SelectCurrentUnit(imprint2.UnitCtrlr);
+                        flag = false;
+                    }
                     flag2 = true;
                     break;
                 case MapImprintType.PLAYER_WAGON:
                 case MapImprintType.ENEMY_WAGON:
-                    SelectCurrentWagon(imprint);
+                    SelectCurrentWagon(imprint2);
                     break;
                 case MapImprintType.INTERACTIVE_POINT:
                 case MapImprintType.WYRDSTONE:
-                    SelectCurrentInteractive(imprint.gameObject.GetComponent<InteractivePoint>());
-                    break;
-                case MapImprintType.DESTRUCTIBLE:
-                    SelectCurrentDestructible(imprint.Destructible);
+                    SelectCurrentInteractive(imprint2.gameObject.GetComponent<InteractivePoint>());
                     break;
                 case MapImprintType.TRAP:
-                    SelectCurrentTrap(imprint.Trap);
+                    SelectCurrentTrap(imprint2.Trap);
+                    break;
+                case MapImprintType.DESTRUCTIBLE:
+                    SelectCurrentDestructible(imprint2.Destructible);
                     break;
                 default:
                     currentSelectedIdx = -1;
@@ -465,6 +471,7 @@ public class OverviewCamera : ICheapState
                     flag2 = true;
                     break;
                 case MapImprintType.BEACON:
+                case MapImprintType.PLAYER_DEPLOYMENT:
                     break;
             }
         }
@@ -479,7 +486,21 @@ public class OverviewCamera : ICheapState
         }
         if (PandoraSingleton<PandoraInput>.Instance.GetKeyUp("action", 6))
         {
-            if (currentSelectedIdx != -1 && currentSelectedIdx < flyingOverviews.Count && flyingOverviews[currentSelectedIdx] != null && flyingOverviews[currentSelectedIdx].imprint != null && flyingOverviews[currentSelectedIdx].imprint.Beacon != null && flyingOverviews[currentSelectedIdx].imprint.Beacon.isActiveAndEnabled)
+            if (currentSelectedIdx != -1 && currentSelectedIdx < flyingOverviews.Count && flyingOverviews[currentSelectedIdx] != null && flyingOverviews[currentSelectedIdx].imprint != null && flyingOverviews[currentSelectedIdx].imprint.imprintType == MapImprintType.PLAYER_DEPLOYMENT)
+            {
+                MissionManager instance = PandoraSingleton<MissionManager>.Instance;
+                SpawnNode component = flyingOverviews[currentSelectedIdx].imprint.gameObject.GetComponent<SpawnNode>();
+                Deployment deployment = (Deployment)instance.StateMachine.GetState(instance.StateMachine.GetActiveStateId());
+                int num4 = deployment.FindSpawnNodeIndex(component);
+                object[] parms = new object[1]
+                {
+                    num4
+                };
+                deployment.RecenterCameraOnDeployedUnit();
+                deployment.Send(reliable: true, Hermes.SendTarget.ALL, deployment.uid, 5u, parms);
+                currentSelectedIdx = -1;
+            }
+            else if (currentSelectedIdx != -1 && currentSelectedIdx < flyingOverviews.Count && flyingOverviews[currentSelectedIdx] != null && flyingOverviews[currentSelectedIdx].imprint != null && flyingOverviews[currentSelectedIdx].imprint.Beacon != null && flyingOverviews[currentSelectedIdx].imprint.Beacon.isActiveAndEnabled)
             {
                 PandoraSingleton<MissionManager>.Instance.RemoveMapBecon(flyingOverviews[currentSelectedIdx].imprint.Beacon);
                 RefreshUI();

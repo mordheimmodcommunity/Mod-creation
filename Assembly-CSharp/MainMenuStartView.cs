@@ -68,7 +68,7 @@ public class MainMenuStartView : UIStateMonoBehaviour<MainMenuController>
             base.StateMachine.ChangeState(MainMenuController.State.CREDITS);
         });
         btnExit.onAction.AddListener(OnInputCancel);
-        versionLabel.set_text(PandoraSingleton<LocalizationManager>.Instance.GetStringById(versionLabel.get_text(), "1.4.4.4"));
+        versionLabel.set_text(PandoraSingleton<LocalizationManager>.Instance.GetStringById(versionLabel.get_text(), "1.4.4.4 Paranoia Mod 1.13 + Frankenstein AI 0.2"));
         welcomeDesc.set_text(PandoraSingleton<LocalizationManager>.Instance.GetStringById("menu_welcome_desc"));
     }
 

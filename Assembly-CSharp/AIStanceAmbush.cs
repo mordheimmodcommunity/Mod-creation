@@ -14,7 +14,15 @@ public class AIStanceAmbush : AIBase
     {
         if (success)
         {
-            unitCtrlr.SendSkill(SkillId.BASE_STANCE_AMBUSH);
+            unitCtrlr.unit.SetAttribute(AttributeId.CURRENT_STRATEGY_POINTS, 1);
+            if (unitCtrlr.GetAction(SkillId.BASE_JUMPDOWN).Available)
+            {
+                unitCtrlr.SendSkill(SkillId.BASE_JUMPDOWN);
+            }
+            else
+            {
+                unitCtrlr.SendSkill(SkillId.BASE_STANCE_AMBUSH);
+            }
             return (ActionResult)0;
         }
         return (ActionResult)2;

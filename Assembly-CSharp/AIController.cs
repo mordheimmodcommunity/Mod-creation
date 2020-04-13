@@ -15,7 +15,7 @@ public class AIController
         FAREST
     }
 
-    public const int ACTION_MAX_TARGET = 3;
+    public const int ACTION_MAX_TARGET = 2;
 
     public const int MIN_ROLL = 50;
 

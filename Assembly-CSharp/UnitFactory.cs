@@ -250,8 +250,8 @@ public class UnitFactory : PandoraSingleton<UnitFactory>
         PandoraDebug.LogInfo("Add combat style set for " + unit.Data.Id);
         List<UnitJoinCombatStyleData> list = PandoraSingleton<DataFactory>.Instance.InitData<UnitJoinCombatStyleData>("fk_unit_id", ((int)unit.Data.Id).ToConstantString());
         List<UnitJoinCombatStyleData> list2 = new List<UnitJoinCombatStyleData>();
-        bool flag = unit.GetMutationId(UnitSlotId.SET1_MAINHAND) != MutationId.NONE;
-        bool flag2 = unit.GetMutationId(UnitSlotId.SET1_OFFHAND) != 0 || unit.GetInjury(UnitSlotId.SET1_OFFHAND) != InjuryId.NONE;
+        bool flag = unit.GetMutationId(UnitSlotId.SET1_MAINHAND) > MutationId.NONE;
+        bool flag2 = unit.GetMutationId(UnitSlotId.SET1_OFFHAND) != 0 || unit.GetInjury(UnitSlotId.SET1_OFFHAND) > InjuryId.NONE;
         for (int i = 0; i < list.Count; i++)
         {
             if (list[i].CombatStyleId != excludedCombatStyleId)
@@ -268,9 +268,9 @@ public class UnitFactory : PandoraSingleton<UnitFactory>
             return CombatStyleId.NONE;
         }
         UnitJoinCombatStyleData randomRatio = UnitJoinCombatStyleData.GetRandomRatio(list2, tyche);
-        if (excludedCombatStyleId != 0 && excludedCombatStyleId < CombatStyleId.RANGE && randomRatio.CombatStyleId < CombatStyleId.RANGE)
+        while ((excludedCombatStyleId >= CombatStyleId.RANGE && randomRatio.CombatStyleId >= CombatStyleId.RANGE) || randomRatio.CombatStyleId == CombatStyleId.NONE)
         {
-            return CombatStyleId.NONE;
+            randomRatio = UnitJoinCombatStyleData.GetRandomRatio(list2, tyche);
         }
         CombatStyleData combatStyleData2 = PandoraSingleton<DataFactory>.Instance.InitData<CombatStyleData>((int)randomRatio.CombatStyleId);
         PandoraDebug.LogInfo("Using combat style " + combatStyleData2.Id + " for unit " + unit.Data.Id);
@@ -510,14 +510,176 @@ public class UnitFactory : PandoraSingleton<UnitFactory>
                 break;
         }
         bool flag = true;
+        int num3 = tyche.Rand(1, 3);
+        int num4 = tyche.Rand(0, 3);
+        int num5 = tyche.Rand(1, 3);
+        int num6 = tyche.Rand(0, 3);
+        int num7 = tyche.Rand(1, 3);
+        int num8 = tyche.Rand(0, 2);
+        int num9 = tyche.Rand(0, 2);
         while (flag && ratingPool < ratingMax)
         {
             flag = false;
-            int num3 = tyche.Rand(0, list.Count);
-            int num4 = 0;
-            while (!flag && num4 < list.Count)
+            int num10 = tyche.Rand(0, list.Count);
+            if (num2 == unit.UnspentMental && num4 == 0 && unit.Leadership <= unit.MaxLeadership && unit.UnspentMental > 0)
             {
-                AttributeData attributeData = list[num3];
+                num10 = 0;
+                if (num4 == 0 && unit.Leadership == unit.MaxLeadership && unit.MaxIntelligence > unit.Intelligence && num5 == 1)
+                {
+                    num10 = 1;
+                }
+                else if (unit.Leadership == unit.MaxLeadership && unit.MaxIntelligence == unit.Intelligence)
+                {
+                    num10 = 2;
+                }
+                if (num4 == 0 && unit.Leadership == unit.MaxLeadership && unit.MaxAlertness > unit.Alertness && num5 == 2)
+                {
+                    num10 = 2;
+                }
+                else if (unit.Leadership == unit.MaxLeadership && unit.MaxAlertness == unit.Alertness)
+                {
+                    num10 = 1;
+                }
+            }
+            if (num2 == unit.UnspentMental && num4 == 1 && unit.Intelligence <= unit.MaxIntelligence)
+            {
+                num10 = 1;
+                if (num4 == 1 && unit.Intelligence == unit.MaxIntelligence && unit.MaxLeadership > unit.Leadership && num5 == 1)
+                {
+                    num10 = 0;
+                }
+                else if (unit.Intelligence == unit.MaxIntelligence && unit.MaxLeadership == unit.Leadership)
+                {
+                    num10 = 2;
+                }
+                if (num4 == 1 && unit.Intelligence == unit.MaxIntelligence && unit.MaxAlertness > unit.Alertness && num5 == 2)
+                {
+                    num10 = 2;
+                }
+                else if (unit.Intelligence == unit.MaxIntelligence && unit.MaxAlertness == unit.Alertness)
+                {
+                    num10 = 0;
+                }
+            }
+            if (num2 == unit.UnspentMental && num4 == 2 && unit.Alertness <= unit.MaxAlertness)
+            {
+                num10 = 2;
+                if (num4 == 2 && unit.Alertness == unit.MaxAlertness && unit.MaxLeadership > unit.Leadership && num5 == 1)
+                {
+                    num10 = 0;
+                }
+                else if (unit.Alertness == unit.MaxAlertness && unit.MaxLeadership == unit.Leadership)
+                {
+                    num10 = 1;
+                }
+                if (num4 == 2 && unit.Alertness == unit.MaxAlertness && unit.MaxIntelligence > unit.Intelligence && num5 == 2)
+                {
+                    num10 = 1;
+                }
+                else if (unit.Alertness == unit.MaxAlertness && unit.MaxIntelligence == unit.Intelligence)
+                {
+                    num10 = 0;
+                }
+            }
+            if (num2 == unit.UnspentMental && unit.IsSpellcaster && unit.Intelligence <= 9)
+            {
+                num10 = 1;
+            }
+            if (num2 == unit.UnspentPhysical && unit.UnspentPhysical > 0)
+            {
+                if (num6 == 0 && unit.UnspentPhysical > 0)
+                {
+                    num10 = 0;
+                    if (num6 == 0 && unit.MaxStrength == unit.Strength && unit.MaxToughness > unit.Toughness && num7 == 0)
+                    {
+                        num10 = 1;
+                    }
+                    else if (unit.MaxStrength == unit.Strength && unit.MaxToughness == unit.Toughness)
+                    {
+                        num10 = 2;
+                    }
+                    if (num6 == 0 && unit.MaxStrength == unit.Strength && unit.MaxAgility > unit.Agility && num7 == 1)
+                    {
+                        num10 = 2;
+                    }
+                    else if (unit.MaxStrength == unit.Strength && unit.MaxAgility == unit.Agility)
+                    {
+                        num10 = 1;
+                    }
+                }
+                if (num6 == 1 && unit.UnspentPhysical > 0)
+                {
+                    num10 = 1;
+                    if (num6 == 1 && unit.MaxToughness == unit.Toughness && unit.MaxStrength > unit.Strength && num8 == 0)
+                    {
+                        num10 = 0;
+                    }
+                    else if (unit.MaxToughness == unit.Toughness && unit.MaxStrength == unit.Strength)
+                    {
+                        num10 = 2;
+                    }
+                    if (num6 == 0 && unit.MaxToughness == unit.Toughness && unit.MaxAgility > unit.Agility && num8 == 1)
+                    {
+                        num10 = 2;
+                    }
+                    else if (unit.MaxToughness == unit.Toughness && unit.MaxAgility == unit.Agility)
+                    {
+                        num10 = 0;
+                    }
+                }
+                if (num6 == 2 && unit.UnspentPhysical > 0)
+                {
+                    num10 = 2;
+                    if (num6 == 1 && unit.MaxAgility == unit.Agility && unit.MaxStrength > unit.Strength && num9 == 0)
+                    {
+                        num10 = 0;
+                    }
+                    else if (unit.MaxAgility == unit.Agility && unit.MaxStrength == unit.Strength)
+                    {
+                        num10 = 1;
+                    }
+                    if (num6 == 0 && unit.MaxAgility == unit.Agility && unit.MaxToughness > unit.Toughness && num9 == 1)
+                    {
+                        num10 = 1;
+                    }
+                    else if (unit.MaxAgility == unit.Agility && unit.MaxToughness == unit.Toughness)
+                    {
+                        num10 = 1;
+                    }
+                }
+            }
+            if (!unit.HasRange() && num3 == 1 && num2 == unit.UnspentMartial && unit.UnspentMartial > 0)
+            {
+                num10 = 0;
+                if (num3 == 1 && unit.WeaponSkill == unit.MaxWeaponSkill && unit.Accuracy <= unit.MaxAccuracy)
+                {
+                    num10 = 2;
+                }
+                if (num3 == 1 && unit.Accuracy == unit.MaxAccuracy && unit.WeaponSkill == unit.MaxWeaponSkill)
+                {
+                    num10 = 1;
+                }
+            }
+            if (!unit.HasRange() && num3 == 2 && num2 == unit.UnspentMartial && unit.UnspentMartial > 0)
+            {
+                num10 = 2;
+                if (num3 == 2 && unit.Accuracy == unit.MaxAccuracy && unit.MaxWeaponSkill > unit.WeaponSkill)
+                {
+                    num10 = 0;
+                }
+                if (num3 == 2 && unit.WeaponSkill == unit.MaxWeaponSkill && unit.Accuracy == unit.MaxAccuracy)
+                {
+                    num10 = 1;
+                }
+            }
+            if (unit.HasRange() && num2 == unit.UnspentMartial && unit.BallisticSkill <= unit.MaxBallisticSkill && unit.UnspentMartial > 0)
+            {
+                num4 = tyche.Rand(0, 3);
+            }
+            int num11 = 0;
+            while (!flag && num11 < list.Count)
+            {
+                AttributeData attributeData = list[num10];
                 if (unit.CanRaiseAttributeFast(attributeData.Id, baseAttributes, maxAttributes, num2))
                 {
                     unit.RaiseAttribute(attributeData.Id, updateAttributes: false);
@@ -526,8 +688,8 @@ public class UnitFactory : PandoraSingleton<UnitFactory>
                     num++;
                     num2--;
                 }
-                num3 = (num3 + 1) % list.Count;
-                num4++;
+                num10 = (num10 + 1) % list.Count;
+                num11++;
             }
         }
         PandoraDebug.LogInfo("Added " + attrTypeId + " " + num + " added!", "MISSION");
@@ -559,7 +721,21 @@ public class UnitFactory : PandoraSingleton<UnitFactory>
             List<SkillLineJoinSkillData> list3 = PandoraSingleton<DataFactory>.Instance.InitData<SkillLineJoinSkillData>("fk_skill_line_id", list[i].SkillLineId.ToIntString());
             for (int j = 0; j < list3.Count; j++)
             {
-                list2.Add(PandoraSingleton<DataFactory>.Instance.InitData<SkillData>((int)list3[j].SkillId));
+                if (list3[j].SkillId != SkillId.FLASH_PARRY_MSTR && list3[j].SkillId != SkillId.FLASH_PARRY && list3[j].SkillId != SkillId.SHIELD_SPECIALIST_MSTR && list3[j].SkillId != SkillId.SHIELD_SPECIALIST && !unit.HasEnchantment(EnchantmentId.ITEM_PARRY))
+                {
+                    if (list[i].SkillLineId != SkillLineId.BALLISTIC_SKILL && unit.HasNoRange())
+                    {
+                        list2.Add(PandoraSingleton<DataFactory>.Instance.InitData<SkillData>((int)list3[j].SkillId));
+                    }
+                    if (list[i].SkillLineId == SkillLineId.BALLISTIC_SKILL && !unit.HasNoRange())
+                    {
+                        list2.Add(PandoraSingleton<DataFactory>.Instance.InitData<SkillData>((int)list3[j].SkillId));
+                    }
+                    else
+                    {
+                        list2.Add(PandoraSingleton<DataFactory>.Instance.InitData<SkillData>((int)list3[j].SkillId));
+                    }
+                }
             }
         }
         return list2;

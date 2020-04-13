@@ -820,9 +820,9 @@ public class LobbyDetailModule : UIModule
             SetPlayerObjectiveChoices(objective1, 0);
             SetPlayerObjectiveChoices(objective2, 1);
         }
-        objective1.SetButtonsVisible(flag && deployment.CurSel != 0);
+        objective1.SetButtonsVisible(flag);
         objective1.SetCurrentSel(0);
-        objective2.SetButtonsVisible(flag && deployment.CurSel != 0);
+        objective2.SetButtonsVisible(flag);
         objective2.SetCurrentSel(0);
     }
 

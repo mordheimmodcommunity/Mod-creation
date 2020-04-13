@@ -474,12 +474,22 @@ public class ActionStatus
             unitCtrlr.chargeCircle.gameObject.SetActive(value: true);
             unitCtrlr.chargeCircle.Set((float)unitCtrlr.unit.AmbushMovement + @float, unitCtrlr.CapsuleRadius);
         }
+        if (actionId == UnitActionId.STANCE && SkillId == SkillId.BASE_STANCE_OVERWATCH)
+        {
+            float float2 = Constant.GetFloat((unitCtrlr.unit.Data.UnitSizeId != UnitSizeId.LARGE) ? ConstantId.MELEE_RANGE_NORMAL : ConstantId.MELEE_RANGE_LARGE);
+            unitCtrlr.chargeCircle.gameObject.SetActive(value: true);
+            int rangeMax = unitCtrlr.Equipments[(int)unitCtrlr.unit.ActiveWeaponSlot].Item.RangeMax;
+            unitCtrlr.chargeCircle.Set2((float)rangeMax + float2, (float)rangeMax + float2);
+        }
+        if (actionId == UnitActionId.END_TURN && SkillId == SkillId.BASE_END_TURN)
+        {
+            unitCtrlr.SetCombatCircle2(unitCtrlr);
+        }
     }
 
     private void OnActionConfirmedCancelled(bool confirmed)
     {
-        UnitActionId actionId = ActionId;
-        if (actionId == UnitActionId.STANCE && (SkillId == SkillId.BASE_STANCE_AMBUSH || SkillId == SkillId.PROWL || SkillId == SkillId.PROWL_MSTR || SkillId == SkillId.ONSLAUGHT || SkillId == SkillId.ONSLAUGHT_MSTR))
+        if (ActionId == UnitActionId.STANCE && (SkillId == SkillId.BASE_STANCE_AMBUSH || SkillId == SkillId.PROWL || SkillId == SkillId.PROWL_MSTR || SkillId == SkillId.ONSLAUGHT || SkillId == SkillId.ONSLAUGHT_MSTR || SkillId == SkillId.BASE_STANCE_OVERWATCH))
         {
             unitCtrlr.chargeCircle.gameObject.SetActive(value: false);
         }

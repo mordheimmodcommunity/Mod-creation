@@ -53,6 +53,38 @@ public class MissionDescModule : UIModule
             resources.SetActive(value: true);
             ratingSection.SetActive(value: false);
             description.set_text(PandoraSingleton<LocalizationManager>.Instance.GetStringById("lobby_desc_" + miss.GetDeploymentScenarioId().ToLowerString()));
+            if (miss.GetMapId() == MissionMapId.GRND_DIS_02_PROC_08)
+            {
+                description.set_text(description.get_text() + " District:  Noble Quarters 4");
+            }
+            if (miss.GetMapId() == MissionMapId.GRND_DIS_02_PROC_07)
+            {
+                description.set_text(description.get_text() + " District:  Noble Quarters 3");
+            }
+            if (miss.GetMapId() == MissionMapId.GRND_DIS_02_PROC_06)
+            {
+                description.set_text(description.get_text() + " District:  Noble Quarters 2");
+            }
+            if (miss.GetMapId() == MissionMapId.GRND_DIS_02_PROC_05)
+            {
+                description.set_text(description.get_text() + " District:  Noble Quarters 1");
+            }
+            if (miss.GetMapId() == MissionMapId.GRND_DIS_01_PROC_01)
+            {
+                description.set_text(description.get_text() + " District: Merchant Quarters 1");
+            }
+            if (miss.GetMapId() == MissionMapId.GRND_DIS_01_PROC_02)
+            {
+                description.set_text(description.get_text() + " District: Merchant Quarters 2");
+            }
+            if (miss.GetMapId() == MissionMapId.GRND_DIS_01_PROC_03)
+            {
+                description.set_text(description.get_text() + " District: Merchant Quarters 3");
+            }
+            if (miss.GetMapId() == MissionMapId.GRND_DIS_01_PROC_04)
+            {
+                description.set_text(description.get_text() + " District: Merchant Quarters 4");
+            }
         }
         SetupShort(miss);
     }

@@ -172,6 +172,18 @@ public class Enchantment
         {
             LabelName = "skill_name_";
             LabelName += empty;
+            if (id == EnchantmentId.RUNE_ENERVATION_EFFECT || id == EnchantmentId.RUNE_ENERVATION_EFFECT_MSTR || id == EnchantmentId.RUNE_ENERVATION_1H_EFFECT)
+            {
+                LabelName = "Warhammer Enervation";
+            }
+            if (id == EnchantmentId.SKILL_INTENSITY_WOUNDS)
+            {
+                LabelName = "Intensity Wounds";
+            }
+            if (id == EnchantmentId.SKILL_IGNORE_PAIN_WOUND_COST || id == EnchantmentId.SKILL_IGNORE_PAIN_WOUND_COST_MSTR)
+            {
+                LabelName = "Ignore Pain Wounds";
+            }
         }
     }
 

@@ -109,9 +109,9 @@ public class AIMoveOnPath : AIBase
                     }
                 }
             }
-            float num2 = unitCtrlr.unit.Movement * unitCtrlr.unit.Movement;
-            float num3 = PandoraUtils.FlatSqrDistance(unitCtrlr.startPosition, unitCtrlr.transform.position);
-            if (num3 > num2)
+            float num = unitCtrlr.unit.Movement * unitCtrlr.unit.Movement;
+            float num2 = PandoraUtils.FlatSqrDistance(unitCtrlr.startPosition, unitCtrlr.transform.position);
+            if (num2 > num)
             {
                 if (unitCtrlr.unit.tempStrategyPoints >= unitCtrlr.unit.CurrentStrategyPoints)
                 {
@@ -121,18 +121,16 @@ public class AIMoveOnPath : AIBase
                 }
                 tempStratPoints++;
                 unitCtrlr.startPosition = unitCtrlr.transform.position;
-                num3 = PandoraUtils.FlatSqrDistance(unitCtrlr.startPosition, unitCtrlr.transform.position);
+                num2 = PandoraUtils.FlatSqrDistance(unitCtrlr.startPosition, unitCtrlr.transform.position);
             }
-            unitCtrlr.unit.tempStrategyPoints = tempStratPoints + ((num3 > 1f) ? 1 : 0);
+            unitCtrlr.unit.tempStrategyPoints = tempStratPoints + ((!(num2 <= 1f)) ? 1 : 0);
+            bool flag = false;
             if (Vector3.SqrMagnitude(unitCtrlr.transform.position - lastPosition) < 0.0064f)
             {
                 blockedTimer += Time.deltaTime;
                 if (blockedTimer >= 1f)
                 {
-                    unitCtrlr.AICtrlr.failedMove++;
-                    EndMove();
-                    PandoraDebug.LogWarning("AI movement end because it was blocked", "AI");
-                    return (ActionResult)0;
+                    flag = true;
                 }
             }
             else
@@ -145,12 +143,8 @@ public class AIMoveOnPath : AIBase
             flatPrevPos.y = previousNodePos.z;
             flatNextPos.x = nextNodePos.x;
             flatNextPos.y = nextNodePos.z;
-            ref Vector2 reference = ref flatCurPos;
-            Vector3 position = unitCtrlr.transform.position;
-            reference.x = position.x;
-            ref Vector2 reference2 = ref flatCurPos;
-            Vector3 position2 = unitCtrlr.transform.position;
-            reference2.y = position2.z;
+            flatCurPos.x = unitCtrlr.transform.position.x;
+            flatCurPos.y = unitCtrlr.transform.position.z;
             if ((unitCtrlr.interactivePoints.Count == 0 && Vector2.SqrMagnitude(flatPrevPos - flatCurPos) > Vector2.SqrMagnitude(flatPrevPos - flatNextPos)) || (unitCtrlr.interactivePoints.Count != 0 && Vector2.SqrMagnitude(flatNextPos - flatCurPos) < 0.3f))
             {
                 if (waypointIdx >= path.vectorPath.Count - 1)
@@ -161,16 +155,16 @@ public class AIMoveOnPath : AIBase
                 waypointIdx++;
                 previousNodePos = nextNodePos;
                 nextNodePos = path.vectorPath[waypointIdx];
-                int num4 = -1;
+                int num3 = -1;
                 for (int k = 0; k < path.path.Count; k++)
                 {
                     if (path.path[k].position == new Int3(nextNodePos))
                     {
-                        num4 = k;
+                        num3 = k;
                         break;
                     }
                 }
-                if (num4 != -1 && unitCtrlr.interactivePoints.Count > 0 && num4 > 0 && path.path[num4 - 1].GraphIndex == 1 && path.path[num4].GraphIndex == 1)
+                if (num3 != -1 && unitCtrlr.interactivePoints.Count > 0 && num3 > 0 && path.path[num3 - 1].GraphIndex == 1 && path.path[num3].GraphIndex == 1)
                 {
                     for (int l = 0; l < unitCtrlr.interactivePoints.Count; l++)
                     {
@@ -182,7 +176,7 @@ public class AIMoveOnPath : AIBase
                         for (int m = 0; m < actionZone.destinations.Count; m++)
                         {
                             ActionDestination actionDestination = actionZone.destinations[m];
-                            if (new Int3(actionDestination.destination.transform.position) == path.path[num4].position)
+                            if (new Int3(actionDestination.destination.transform.position) == path.path[num3].position)
                             {
                                 unitCtrlr.interactivePoint = actionZone;
                                 unitCtrlr.activeActionDest = actionDestination;
@@ -226,6 +220,19 @@ public class AIMoveOnPath : AIBase
             eulerAngles.x = 0f;
             eulerAngles.z = 0f;
             unitCtrlr.transform.rotation = Quaternion.Euler(eulerAngles);
+            if (flag)
+            {
+                PandoraSingleton<Hermes>.Instance.SendChat(unitCtrlr.unit.Name + blockedTimer + " blocked and turning");
+                unitCtrlr.SetAnimSpeed(1f);
+                quaternion.SetLookRotation(previousNodePos - unitCtrlr.transform.position, Vector3.up);
+                Vector3 eulerAngles2 = quaternion.eulerAngles;
+                eulerAngles2.x = 0f;
+                eulerAngles2.z = 0f;
+                unitCtrlr.transform.rotation = Quaternion.Euler(eulerAngles2);
+                unitCtrlr.transform.position = previousNodePos;
+                EndMove();
+                return (ActionResult)0;
+            }
             return (ActionResult)1;
         }
         return (ActionResult)1;

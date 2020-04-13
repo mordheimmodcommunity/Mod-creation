@@ -4,59 +4,6 @@ using UnityEngine;
 
 public class Unit
 {
-    public static readonly AttributeId[] PhysicalAttributeIds = new AttributeId[3]
-    {
-        AttributeId.STRENGTH,
-        AttributeId.TOUGHNESS,
-        AttributeId.AGILITY
-    };
-
-    public static readonly AttributeId[] MentalAttributeIds = new AttributeId[3]
-    {
-        AttributeId.LEADERSHIP,
-        AttributeId.INTELLIGENCE,
-        AttributeId.ALERTNESS
-    };
-
-    public static readonly AttributeId[] MartialAttributeIds = new AttributeId[3]
-    {
-        AttributeId.WEAPON_SKILL,
-        AttributeId.BALLISTIC_SKILL,
-        AttributeId.ACCURACY
-    };
-
-    public static readonly InjuryId[] HIRE_UNIT_INJURY_EXCLUDES = new InjuryId[5]
-    {
-        InjuryId.DEAD,
-        InjuryId.MULTIPLE_INJURIES,
-        InjuryId.NEAR_DEATH,
-        InjuryId.FULL_RECOVERY,
-        InjuryId.AMNESIA
-    };
-
-    public int warbandIdx;
-
-    public int warbandPos;
-
-    public bool isAI;
-
-    private UnitSlotId activeWeaponSlot;
-
-    public AnimStyleId currentAnimStyleId;
-
-    private List<Item> items;
-
-    private List<BodyPartData> availableBodyParts;
-
-    public Dictionary<BodyPartId, BodyPart> bodyParts;
-
-    public Dictionary<AttributeId, List<AttributeMod>> attributeModifiers;
-
-    public Item deathTrophy;
-
-    public int tempStrategyPoints;
-
-    public int tempOffensePoints;
 
     private int[] attributes;
 
@@ -64,7 +11,6 @@ public class Unit
 
     private static AttributeData[] attributeDataById;
 
-    private static Dictionary<AttributeId, List<AttributeAttributeData>> attributeAttributeDataById;
 
     private Dictionary<int, AttributeId> maxAttributes;
 
@@ -606,6 +552,36 @@ public class Unit
     {
         UnitSave = us;
         Init();
+    }
+
+    static Unit()
+    {
+        PhysicalAttributeIds = new AttributeId[3]
+        {
+            AttributeId.STRENGTH,
+            AttributeId.TOUGHNESS,
+            AttributeId.AGILITY
+        };
+        MentalAttributeIds = new AttributeId[3]
+        {
+            AttributeId.LEADERSHIP,
+            AttributeId.INTELLIGENCE,
+            AttributeId.ALERTNESS
+        };
+        MartialAttributeIds = new AttributeId[3]
+        {
+            AttributeId.WEAPON_SKILL,
+            AttributeId.BALLISTIC_SKILL,
+            AttributeId.ACCURACY
+        };
+        HIRE_UNIT_INJURY_EXCLUDES = new InjuryId[5]
+        {
+            InjuryId.DEAD,
+            InjuryId.MULTIPLE_INJURIES,
+            InjuryId.NEAR_DEATH,
+            InjuryId.FULL_RECOVERY,
+            InjuryId.AMNESIA
+        };
     }
 
     public static Unit GenerateUnit(UnitId unitId, int rank)
@@ -3221,7 +3197,11 @@ public class Unit
 
     public bool HasRange()
     {
-        return Items[(int)ActiveWeaponSlot] != null && Items[(int)ActiveWeaponSlot].TypeData != null && Items[(int)ActiveWeaponSlot].TypeData.IsRange;
+        if (Items[(int)ActiveWeaponSlot] != null && Items[(int)ActiveWeaponSlot].TypeData != null)
+        {
+            return Items[(int)ActiveWeaponSlot].TypeData.IsRange;
+        }
+        return false;
     }
 
     private void ApplyRuneMark(RuneMark runeMark)
@@ -4611,5 +4591,14 @@ public class Unit
             num = (int)(num + Enchantments[i].Id);
         }
         return num;
+    }
+
+    public bool HasNoRange()
+    {
+        if (Items[(int)ActiveWeaponSlot] != null && Items[(int)ActiveWeaponSlot].TypeData != null && !Items[(int)ActiveWeaponSlot].TypeData.IsRange)
+        {
+            return !Items[(int)InactiveWeaponSlot].TypeData.IsRange;
+        }
+        return false;
     }
 }

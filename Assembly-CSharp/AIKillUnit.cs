@@ -20,9 +20,11 @@ public class AIKillUnit : AIBase
         List<UnitController> targets = action.Targets;
         for (int i = 0; i < targets.Count; i++)
         {
-            if (targets[i].unit.CurrentWound <= num)
+            if (targets[i].unit.CurrentWound <= num * 2)
             {
                 target = targets[i];
+
+
                 break;
             }
         }
