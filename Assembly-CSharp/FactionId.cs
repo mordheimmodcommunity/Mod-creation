@@ -1,0 +1,15 @@
+public enum FactionId
+{
+    NONE,
+    MERCENARIES,
+    SIGMAR_HAVEN,
+    BRIGAND_BURG,
+    CUTTHROATS_DEN,
+    BLACK_PIT_SETTLEMENT,
+    SKAVEN,
+    POSSESSED,
+    SISTERS,
+    WITCH_HUNTERS,
+    UNDEAD,
+    MAX_VALUE
+}
