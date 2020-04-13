@@ -1,0 +1,50 @@
+using Mono.Data.Sqlite;
+
+public class MutationEnchantmentData : DataCore
+{
+    public int Id
+    {
+        get;
+        private set;
+    }
+
+    public MutationId MutationId
+    {
+        get;
+        private set;
+    }
+
+    public EnchantmentId EnchantmentId
+    {
+        get;
+        private set;
+    }
+
+    public UnitActionId UnitActionIdTrigger
+    {
+        get;
+        private set;
+    }
+
+    public SkillId SkillIdTrigger
+    {
+        get;
+        private set;
+    }
+
+    public int Modifier
+    {
+        get;
+        private set;
+    }
+
+    public override void Populate(SqliteDataReader reader)
+    {
+        Id = reader.GetInt32(0);
+        MutationId = (MutationId)reader.GetInt32(1);
+        EnchantmentId = (EnchantmentId)reader.GetInt32(2);
+        UnitActionIdTrigger = (UnitActionId)reader.GetInt32(3);
+        SkillIdTrigger = (SkillId)reader.GetInt32(4);
+        Modifier = reader.GetInt32(5);
+    }
+}

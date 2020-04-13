@@ -1,0 +1,14 @@
+public enum SceneLoadingId
+{
+    NONE = 0,
+    HIDEOUT_TO_MISSION = 1,
+    OPTIONS_QUIT_GAME = 2,
+    LAUNCH_HIDEOUT = 3,
+    LAUNCH_MISSION = 4,
+    NEW_CAMPAIGN = 6,
+    LAUNCH_END_GAME = 7,
+    LAUNCH_MULTI = 8,
+    LAUNCH_MISSION_CAMPAIGN = 9,
+    LAUNCH_TUTO = 10,
+    MAX_VALUE = 11
+}

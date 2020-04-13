@@ -1,0 +1,14 @@
+public enum MapImprintType
+{
+    NONE = -1,
+    UNIT,
+    PLAYER_WAGON,
+    ENEMY_WAGON,
+    BEACON,
+    INTERACTIVE_POINT,
+    WYRDSTONE,
+    PLAYER_DEPLOYMENT,
+    ENEMY_DEPLOYMENT,
+    TRAP,
+    DESTRUCTIBLE
+}
