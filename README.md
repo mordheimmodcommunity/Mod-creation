@@ -22,5 +22,3 @@
 [dnSpy](https://github.com/0xd4d/dnSpy/releases/download/v6.1.4/dnSpy-net472.zip) to edit .dll files
 
 [DBBrowser](https://dbeaver.io/files/dbeaver-ce-latest-x86_64-setup.exe) to edit database files
-
-If you encounter any problems, please report an issue and we will help you as soon as possible.
