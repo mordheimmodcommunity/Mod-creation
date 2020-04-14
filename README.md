@@ -66,7 +66,8 @@ Open the class `ConfirmationPopupView` or `ctrl` + `click` on `Show` from `base.
 
 Then edit the method `Show` in the same way, `ctrl` + `F` inside the file to find a method
 ```csharp
-public virtual void Show(string titleId, string textId, Action<bool> callback, bool hideButtons = false, bool hideCancel = false)
+public virtual void Show(string titleId, string textId, Action<bool> callback, 
+bool hideButtons = false, bool hideCancel = false)
 {
 	if (!string.IsNullOrEmpty(titleId))
 	{
