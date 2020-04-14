@@ -1,8 +1,8 @@
 # How to create your first mod
 
-- Create your own mod
+- [Create your own mod](https://github.com/mordheimmodcommunity/create-mod/blob/master/README.md#create-your-own-mod)
 
-  - Install tools
+  - [Install tools](https://github.com/mordheimmodcommunity/create-mod/blob/master/README.md#install-tools)
 
   - Edit assemblies .dll files ( TODO )
   
