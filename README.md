@@ -62,7 +62,7 @@ public override void Awake()
 
 Click on `Compile` at the bottom to save your modifications
 
-Open `ConfirmationPopupView` or `ctrl` + `click` on `Show` from `base.StateMachine.ConfirmPopup.Show` in the code above
+Open the class `ConfirmationPopupView` or `ctrl` + `click` on `Show` from `base.StateMachine.ConfirmPopup.Show` in the code above
 
 Then edit the method `Show` in the same way, `ctrl` + `F` inside the file to find a method
 ```csharp
