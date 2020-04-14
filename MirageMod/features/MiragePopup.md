@@ -26,7 +26,7 @@
     this.text.text = PandoraSingleton<LocalizationManager>.Instance.GetStringById(textId);
     }
     // ADD LINES - START
-    if (textId == "M I R A G E");
+    if (textId == "M I R A G E")
     {
       this.text.text = " This is the M I R A G E  MOD v1.01";
     }
