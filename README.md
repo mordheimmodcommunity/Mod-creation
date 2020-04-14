@@ -1,6 +1,6 @@
 # Mod creation tutorials
 
-- [Create your own mod](https://github.com/mordheimmodcommunity/create-mod/blob/master/README.md#create-your-own-mod)
+- [Create your own mod](https://github.com/mordheimmodcommunity/create-mod/blob/master/README.md#create-your-mod)
 
   - [Install required tools](https://github.com/mordheimmodcommunity/create-mod/blob/master/README.md#install-tools)
 
