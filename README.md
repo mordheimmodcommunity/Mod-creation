@@ -24,7 +24,7 @@
 
 [DBBrowser](https://dbeaver.io/files/dbeaver-ce-latest-x86_64-setup.exe) to edit database files
 
-TODO: tools for editing assets files
+[UABE](https://github.com/DerPopo/UABE/releases/download/2.2stabled/AssetsBundleExtractor_2.2stabled_32bit.zip) to edit assets files
 
 ## Modify assemblies with dnSpy
 
