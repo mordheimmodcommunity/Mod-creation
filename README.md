@@ -41,7 +41,7 @@ You should now see on the left panel `Assembly-CSharp` along with a bunch of oth
 
 In `Assembly-CSharp` you should see a list of `namespace` written in `yellow` and `{} -` which contains most of the game code.
 
-We will take the Mirage Mod feature  as an example for this tutorial.
+We will take the Mirage Mod feature [MiragePopup](/MirageMod/MiragePopup.md) as a base for this tutorial.
 
 Open the class `MainMenuStartView` in `{} -` or use `ctrl` + `shift` + `K` to search inside the assembly. 
 
