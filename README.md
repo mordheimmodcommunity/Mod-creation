@@ -88,7 +88,7 @@ public virtual void Show(string titleId, string textId, Action<bool> callback, b
 
 Hit `Compile`
 
-Click on `Save All` or `ctrl` + `shift` + `S`, then hit `OK`
+Click on `File` then `Save All` or `ctrl` + `shift` + `S`, then hit `OK`
 
 Start your game and you should see a popup on the main screen :wink:
 
