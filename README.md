@@ -50,14 +50,14 @@ To edit a method, use `right click` on the code then `Edit Method` or `ctrl` + `
 Edit the method `Awake` and add the lines, between the `// ADD LINES - START` and `// ADD LINES - END` comments
 ```csharp
 public override void Awake()
-	{
-		base.Awake();
-    // ADD LINES - START
-    base.StateMachine.ConfirmPopup.Show("menu_warning","My first mod", 
-    new Action<bool> (this.OnPopup2), false, false);
-    // ADD LINES - END
-		this.btnContinue.onAction.AddListener(new UnityAction(this.OnContinueCampaign));
-		this.btnLoadGame.onAction.AddListener(delegate()
+{
+	base.Awake();
+	// ADD LINES - START
+	base.StateMachine.ConfirmPopup.Show("menu_warning","My first mod", 
+	new Action<bool> (this.OnPopup2), false, false);
+	// ADD LINES - END
+	this.btnContinue.onAction.AddListener(new UnityAction(this.OnContinueCampaign));
+	this.btnLoadGame.onAction.AddListener(delegate()
 ```
 
 Click on `Compile` at the bottom to save your modifications
@@ -67,23 +67,23 @@ Open `ConfirmationPopupView` or `ctrl` + `click` on `Show` from `base.StateMachi
 Then edit the method `Show` in the same way, `ctrl` + `F` inside the file to find a method
 ```csharp
 public virtual void Show(string titleId, string textId, Action<bool> callback, bool hideButtons = false, bool hideCancel = false)
+{
+	if (!string.IsNullOrEmpty(titleId))
 	{
-		if (!string.IsNullOrEmpty(titleId))
-		{
-			this.title.text = PandoraSingleton<LocalizationManager>.Instance.GetStringById(titleId);
-		}
-		if (!string.IsNullOrEmpty(textId))
-		{
-			this.text.text = PandoraSingleton<LocalizationManager>.Instance.GetStringById(textId);
-		}
-    // ADD LINES - START
-    if (textId == "My first mod");
-    {
-      this.text.text = "Bravo! You created your first mod!";
-    }
-    // ADD LINES - END
-		this.Show(callback, hideButtons, hideCancel);
+		this.title.text = PandoraSingleton<LocalizationManager>.Instance.GetStringById(titleId);
 	}
+	if (!string.IsNullOrEmpty(textId))
+	{
+		this.text.text = PandoraSingleton<LocalizationManager>.Instance.GetStringById(textId);
+	}
+	// ADD LINES - START
+	if (textId == "My first mod");
+	{
+	this.text.text = "Bravo! You created your first mod!";
+	}
+	// ADD LINES - END
+	this.Show(callback, hideButtons, hideCancel);
+}
 ```
 
 Hit `Compile`
