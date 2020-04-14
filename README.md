@@ -1,4 +1,4 @@
-# How to create your first mod
+# Mod creation tutorials
 
 - [Create your own mod](https://github.com/mordheimmodcommunity/create-mod/blob/master/README.md#create-your-own-mod)
 
@@ -14,9 +14,9 @@
 
 - Add your mod to the launcher ( TODO )
 
-## Create your mod
+# Create your mod
 
-### Install tools
+## Install tools
 
 [.NET Framework 4.8](https://dotnet.microsoft.com/download/dotnet-framework/thank-you/net48-developer-pack-offline-installer) dependency for dnSpy
 
@@ -26,7 +26,7 @@
 
 TODO: tools for editing assets files
 
-### Modify assemblies with dnSpy
+## Modify assemblies with dnSpy
 
 The game assemblies files are located by default at :
 `C:\Program Files (x86)\Steam\SteamApps\common\mordheim\mordheim_Data\Managed`
