@@ -6,7 +6,7 @@
 
   - [Edit assemblies .dll files](https://github.com/mordheimmodcommunity/create-mod/blob/master/README.md#modify-assemblies-with-dnspy)
   
-  - Edit database files ( TODO )
+  - [Edit database files](https://github.com/mordheimmodcommunity/create-mod/blob/master/README.md#modify-database-with-dbeaver)
   
   - Edit assets files ( TODO )
   
@@ -28,8 +28,10 @@ TODO: tools for editing assets files
 
 ## Modify assemblies with dnSpy
 
-The game assemblies files are located by default at :
-`C:\Program Files (x86)\Steam\SteamApps\common\mordheim\mordheim_Data\Managed`
+The game assemblies files are located by default at:
+```
+C:\Program Files (x86)\Steam\SteamApps\common\mordheim\mordheim_Data\Managed
+```
 
 The file we are interested in is `Assembly-CSharp.dll` which contain most of the game code.
 
@@ -93,5 +95,27 @@ Click on `File` then `Save All` or `ctrl` + `shift` + `S`, then hit `OK`
 
 Start your game and you should see a popup on the main screen :wink:
 
+## Modify database with DBeaver
 
+The database file is located by default at:
+```
+C:\Program Files (x86)\Steam\SteamApps\common\mordheim\mordheim_Data\StreamingAssets\database
+```
+There is only 1 file which is called `mordheim`, like with .dll it is preferable to copy it somewhere as backup.
+
+Start DBeaver, open the file `mordheim`.
+
+You will see a lot of gibberish, what we are interested in is the first line `SQLite format 3` which means it is an SQLite database.
+
+Close the file then click on `Database` then `New Database Connection`, choose `SQLite` then hit `next` inside `Path` select the database file `C:\Program Files (x86)\Steam\SteamApps\common\mordheim\mordheim_Data\StreamingAssets\database\mordheim`, hit `finish`.
+
+It will probably prompt you to install SQLite drivers, say `yes`.
+
+On the left you should now see `Tables` which contains all the game tables, to see what a table contains, click on it and hit the `Data` tab on the right. 
+
+In the DB you can mainly modify in game values like item, skill, character attributes, gold costs etc ...
+
+Once you modified something, click on `File` then `Save`.
+
+Have fun!
 
