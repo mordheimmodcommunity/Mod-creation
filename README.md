@@ -1,4 +1,4 @@
-# Mod creation tutorials
+# Mod creation tutorial
 
 - [Create your own mod](https://github.com/mordheimmodcommunity/create-mod/blob/master/README.md#create-your-mod)
 
