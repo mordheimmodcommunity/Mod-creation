@@ -13,6 +13,15 @@
     this.btnContinue.onAction.AddListener(new UnityAction(this.OnContinueCampaign));
     ...code...
   }
+
+  // ADD METHOD
+  private void OnPopup2(bool confirm)
+  {
+    Color yellow = Color.yellow;
+    this.ismirage = true;
+    this.welcomeDesc.color = yellow;
+    this.welcomeDesc.text = "This is the M I R A G E mod v1.0. Start an Exhibition game and select 'Marked for Death' objectives.\nGreetings from Steiner.;
+  }
 ```
 ### ConfirmationPopupView.cs
 

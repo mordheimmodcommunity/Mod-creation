@@ -1,0 +1,16 @@
+{
+  "name": "Mirage Mod",
+  "description": "This mod remove the intro when starting the game",
+  "features":
+  [
+    {
+      "name": "Fastload",
+      "description": "Skip the intro when starting the game"
+    },
+    {
+      "name": "Mirage Popup",
+      "description": "Trigger a popup with mod's information on the main screen"
+    }
+  ]
+}
+
