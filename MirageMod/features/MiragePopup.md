@@ -1,4 +1,4 @@
-# Feature: mirage popup
+# Feature: Mirage popup
 
 ### MainMenuStartView.cs
 
