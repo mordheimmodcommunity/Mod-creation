@@ -54,7 +54,7 @@ public override void Awake()
 	base.Awake();
 	// ADD LINES - START
 	base.StateMachine.ConfirmPopup.Show("menu_warning","My first mod", 
-	new Action<bool> (this.OnPopup2), false, false);
+	new Action<bool> (this.OnPopup), false, false);
 	// ADD LINES - END
 	this.btnContinue.onAction.AddListener(new UnityAction(this.OnContinueCampaign));
 	this.btnLoadGame.onAction.AddListener(delegate()
@@ -77,9 +77,9 @@ public virtual void Show(string titleId, string textId, Action<bool> callback, b
 		this.text.text = PandoraSingleton<LocalizationManager>.Instance.GetStringById(textId);
 	}
 	// ADD LINES - START
-	if (textId == "My first mod");
+	if (textId == "My first mod")
 	{
-	this.text.text = "Bravo! You created your first mod!";
+	this.text.text = "Bravo! You created your first mod!\nIf you click on Confirm it will close the game.";
 	}
 	// ADD LINES - END
 	this.Show(callback, hideButtons, hideCancel);
@@ -87,6 +87,8 @@ public virtual void Show(string titleId, string textId, Action<bool> callback, b
 ```
 
 Hit `Compile`
+
+Click on `Save All` or `ctrl` + `shift` + `S`, then hit `OK`
 
 Start your game and you should see a popup on the main screen :wink:
 
