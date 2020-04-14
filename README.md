@@ -2,7 +2,7 @@
 
 - [Create your own mod](https://github.com/mordheimmodcommunity/create-mod/blob/master/README.md#create-your-own-mod)
 
-  - [Install tools](https://github.com/mordheimmodcommunity/create-mod/blob/master/README.md#install-tools)
+  - [Install required tools](https://github.com/mordheimmodcommunity/create-mod/blob/master/README.md#install-tools)
 
   - Edit assemblies .dll files ( TODO )
   
@@ -14,7 +14,7 @@
 
 - Add your mod to the launcher ( TODO )
 
-## Create your own mod
+## Create your mod
 
 ### Install tools
 [.NET Framework 4.8](https://dotnet.microsoft.com/download/dotnet-framework/thank-you/net48-developer-pack-offline-installer) dependency for dnSpy
